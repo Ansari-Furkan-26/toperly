@@ -30,6 +30,7 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
+  token:string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,6 +40,7 @@ const API_BASE = "http://localhost:5000/api/auth";
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [token, setToken] = useState(null);
 
   // On mount, try to load user from localStorage
   useEffect(() => {
@@ -57,6 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
       if (response.ok && data.user) {
         setUser(data.user);
+        setToken(data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
         return true;
@@ -82,6 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const resData = await response.json();
       if (response.ok && resData.user) {
         setUser(resData.user);
+        setToken(resData.token);
         localStorage.setItem('user', JSON.stringify(resData.user));
         localStorage.setItem('token', resData.token);
         return true;
@@ -105,7 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isLoading, token }}>
       {children}
     </AuthContext.Provider>
   );

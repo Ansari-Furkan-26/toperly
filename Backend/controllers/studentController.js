@@ -20,7 +20,11 @@ export const getAllStudents = async (req, res) => {
 
 // READ student by ID
 export const getStudentById = async (req, res) => {
-  const student = await Student.findById(req.params.id);
+  const student = await Student.findById(req.params.id).populate({
+    path: 'enrolledCourses.courseId',
+    populate: { path: 'instructor' } // To get instructor name
+  })
+  .lean();;
   if (!student) return res.status(404).json({ message: 'Student Not Found' });
   res.json(student);
 };

@@ -15,6 +15,8 @@ import { Sidebar } from "./components/Sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import EnrolledCourses from "./components/student/EnrolledCourses";
+import CourseManagementSystem from "./pages/Course";
+import Wishlist from "./components/student/Wishlist";
 
 const queryClient = new QueryClient();
 
@@ -54,7 +56,11 @@ const App = () => (
             <Route path="/hub" element={<ProtectedLayout><Hub /></ProtectedLayout>} />
             <Route path="/courses" element={<ProtectedLayout><CoursesCatalog /></ProtectedLayout>} />
             <Route path="/courses/:courseId" element={<ProtectedLayout><CourseDetail /></ProtectedLayout>} />
+            <Route path="/course-management" element={<ProtectedLayout><CourseManagementSystem /></ProtectedLayout>} />
+            
             <Route path="/enrolled-courses" element={<ProtectedLayout><EnrolledCourses /></ProtectedLayout>} />
+            <Route path="/wishlist" element={<ProtectedLayout><Wishlist /></ProtectedLayout>} />
+
             <Route path="*" element={<ProtectedLayout><NotFound /></ProtectedLayout>} />
           </Routes>
         </BrowserRouter>

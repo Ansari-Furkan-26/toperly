@@ -1,27 +1,24 @@
-import { User } from "../models/user.model.js";
-import { ApiError } from "../utils/ApiError.js";
-import { asyncWrapper } from "./asyncWrapper.middleware.js";
-import jwt from 'jsonwebtoken'
+// middleware/verifyToken.js
+import jwt from 'jsonwebtoken';
 
-export const verifyUser = asyncWrapper(async(req,res,next)=>{
-    const token = req.cookies?.accessToken || req.header("authorization")?.split(" ")[1]
-    if(!token) throw new ApiError(401,"UnAuthorized Access")
-        try {
-        const payload = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
-        const user = await User.findById(payload._id)
-        if(!user){
-            throw new ApiError(401,"Invalid Token")
-        }
-        if(!user.refreshToken){
-            throw new ApiError(401,"Invalid Token")
-        }
-        req.user = user
-        next()
-    } catch (error) {
-        console.log(error)
-        throw new ApiError(401,"Invalid Token")
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+
+export const verifyToken = (req, res, next) => {
+  try {
+    const authHeader = req.headers['authorization'];
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Authorization header missing or malformed' });
     }
 
-    // res.send("sldkfj")
-    
-})
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // Attach user info to request
+    req.user = decoded;
+    next();
+  } catch (err) {
+    console.error('JWT verification failed:', err.message);
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
+};

@@ -1,7 +1,8 @@
 // components/CoursesCatalog.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Star, Clock, Users, Play, BookOpen } from 'lucide-react';
+import { Search, Filter, Star, Clock, Users, Play, BookOpen,Heart } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const CoursesCatalog = () => {
   const [courses, setCourses] = useState([]);
@@ -10,12 +11,14 @@ const CoursesCatalog = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('');
   const [categories, setCategories] = useState([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
   const navigate = useNavigate();
-
+  const {user, token} = useAuth();
   const API_BASE = 'http://localhost:5000/api';
 
   useEffect(() => {
     fetchCourses();
+
   }, [searchTerm, selectedCategory, selectedLevel]);
 
   const fetchCourses = async () => {
@@ -51,6 +54,16 @@ const CoursesCatalog = () => {
         const uniqueCategories = [...new Set(data.map(course => course.category))];
         setCategories(uniqueCategories);
       }
+
+      if (user?.id) {
+  const res = await fetch(`${API_BASE}/wishlist/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const data = await res.json();
+  setWishlist(data.map(course => course._id));
+}
     } catch (error) {
       console.error('Error fetching courses:', error);
     } finally {
@@ -58,10 +71,39 @@ const CoursesCatalog = () => {
     }
   };
 
-  const CourseCard = ({ course }) => (
-  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-gray-300 hover:shadow-md transition-all duration-200">
+  
+
+  const CourseCard = ({ course }) => {
+    const isWishlisted = wishlist.includes(course._id);
+const toggleWishlist = async () => {
+  const endpoint = `${API_BASE}/wishlist/${course._id}`;
+  const method = isWishlisted ? 'DELETE' : 'POST';
+
+  const res = await fetch(endpoint, {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (res.ok) {
+    setWishlist(prev =>
+      isWishlisted ? prev.filter(id => id !== course._id) : [...prev, course._id]
+    );
+  }
+};
+  return <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-gray-300 hover:shadow-md transition-all duration-200">
     {/* Course Thumbnail */}
     <div className="relative h-44 bg-gray-100">
+      <button
+  onClick={toggleWishlist}
+  className="absolute top-3 right-12 z-10 bg-white p-1.5 rounded-full shadow-sm hover:bg-gray-100"
+>
+  <Heart
+    size={18}
+    className={isWishlisted ? 'text-red-500 fill-red-500' : 'text-gray-400'}
+  />
+</button>
       {course.thumbnail ? (
         <img 
           src={course.thumbnail.url} 
@@ -133,7 +175,7 @@ const CoursesCatalog = () => {
       </button>
     </div>
   </div>
-);
+};
 
 
 

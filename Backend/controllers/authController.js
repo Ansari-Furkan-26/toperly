@@ -4,7 +4,7 @@ import Student from '../models/Student.js';
 import Instructor from '../models/Instructor.js';
 
 // JWT secret from env
-const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET || "your_jwt_secret";
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 // Function to generate JWT token
 const generateToken = (user) => {
@@ -115,7 +115,7 @@ export const login = async (req, res) => {
     }
 
     const token = generateToken(user);
-
+    console.log(token);
     return res.json({
       message: 'Login successful',
       user: {

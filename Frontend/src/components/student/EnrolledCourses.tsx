@@ -60,32 +60,41 @@ const EnrolledCourses = () => {
   }, [user]);
 
   const fetchEnrolledCourses = async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch all courses and filter by enrolled students
-      const response = await fetch(`${API_BASE}/courses`);
-      
-      if (response.ok) {
-        const allCourses = await response.json();
-        
-        // Filter courses where current student is enrolled
-        const studentEnrolledCourses = allCourses.filter((course: Course) => 
-          course.enrolledStudents.includes(user._id)
-        );
-        
-        setEnrolledCourses(studentEnrolledCourses);
-        
-        // Extract unique categories from enrolled courses
-        const uniqueCategories = [...new Set(studentEnrolledCourses.map(course => course.category))];
-        setCategories(uniqueCategories);
+  try {
+    setLoading(true);
+
+    const response = await fetch(`${API_BASE}/students/${user.id}`, {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+        'Content-Type': 'application/json'
       }
-    } catch (error) {
-      console.error('Error fetching enrolled courses:', error);
-    } finally {
-      setLoading(false);
+    });
+
+    if (response.ok) {
+      const studentData = await response.json();
+
+      const studentEnrolledCourses = studentData.enrolledCourses.map((entry: any) => ({
+        ...entry.courseId,
+        enrolledAt: entry.enrolledAt,
+        progress: entry.progress,
+        completedLessons: entry.completedLessons,
+        certificateIssued: entry.certificateIssued,
+      }));
+
+      setEnrolledCourses(studentEnrolledCourses);
+
+      const uniqueCategories = [...new Set(studentEnrolledCourses.map((course: Course) => course.category))];
+      setCategories(uniqueCategories);
+    } else {
+      console.error('Failed to fetch student data');
     }
-  };
+  } catch (error) {
+    console.error('Error fetching enrolled courses:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Filter courses based on search and filters
   const filteredCourses = enrolledCourses.filter(course => {
@@ -137,7 +146,7 @@ const EnrolledCourses = () => {
         {/* Continue Learning Overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100">
           <button 
-            onClick={() => navigate(`/courses/${course._id}/learn`)}
+            onClick={() => navigate(`/courses/${course._id}`)}
             className="bg-white text-gray-800 px-4 py-2 rounded-md font-medium text-sm hover:bg-gray-100 transition-colors"
           >
             Continue Learning
@@ -183,7 +192,7 @@ const EnrolledCourses = () => {
         {/* Action Buttons */}
         <div className="flex gap-2">
           <button
-            onClick={() => navigate(`/courses/${course._id}/learn`)}
+            onClick={() => navigate(`/courses/${course._id}`)}
             className="flex-1 bg-gray-900 text-white py-2.5 rounded-md hover:bg-gray-800 transition-colors duration-200 font-medium text-sm"
           >
             Continue Learning

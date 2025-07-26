@@ -1,9 +1,21 @@
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { GraduationCap, LogOut, BookOpen, DollarSign, Upload, Users, Star, Heart, Award, Settings, LayoutDashboard } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  GraduationCap,
+  LogOut,
+  BookOpen,
+  DollarSign,
+  Upload,
+  Users,
+  Star,
+  Heart,
+  Award,
+  Settings,
+  LayoutDashboard,
+} from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface SidebarProps {
   user: {
@@ -20,37 +32,42 @@ interface SidebarProps {
 
 export const Sidebar = ({ user, logout }: SidebarProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
-    navigate('/auth');
+    navigate("/auth");
   };
 
   const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
   };
 
   const instructorLinks = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { name: 'All Courses', icon: BookOpen, path: '/courses' },
-    { name: 'My Courses', icon: BookOpen, path: '/courses' },
-    { name: 'Earnings', icon: DollarSign, path: '/earnings' },
-    { name: 'Upload Course', icon: Upload, path: '/upload-course' },
-    { name: 'Students', icon: Users, path: '/students' },
-    { name: 'Reviews', icon: Star, path: '/reviews' },
-    { name: 'Profile Settings', icon: Settings, path: '/profile-settings' },
+    { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+    { name: "Course Management", icon: BookOpen, path: "/course-management" },
+    { name: "My Courses", icon: BookOpen, path: "/courses" },
+    { name: "Earnings", icon: DollarSign, path: "/earnings" },
+    { name: "Upload Course", icon: Upload, path: "/upload-course" },
+    { name: "Students", icon: Users, path: "/students" },
+    { name: "Reviews", icon: Star, path: "/reviews" },
+    { name: "Profile Settings", icon: Settings, path: "/profile-settings" },
   ];
 
   const studentLinks = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { name: 'All Courses', icon: BookOpen, path: '/courses' },
-    { name: 'Enrolled Courses', icon: BookOpen, path: '/enrolled-courses' },
-    { name: 'Wishlist', icon: Heart, path: '/wishlist' },
-    { name: 'Certificates', icon: Award, path: '/certificates' },
-    { name: 'Profile Settings', icon: Settings, path: '/profile-settings' },
+    { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+    { name: "All Courses", icon: BookOpen, path: "/courses" },
+    { name: "Enrolled Courses", icon: BookOpen, path: "/enrolled-courses" },
+    { name: "Wishlist", icon: Heart, path: "/wishlist" },
+    { name: "Certificates", icon: Award, path: "/certificates" },
+    { name: "Profile Settings", icon: Settings, path: "/profile-settings" },
   ];
 
-  const navLinks = user.role === 'instructor' ? instructorLinks : studentLinks;
+  const navLinks = user.role === "instructor" ? instructorLinks : studentLinks;
 
   return (
     <aside className="fixed inset-y-0 left-0 w-64 bg-card shadow-card border-r flex flex-col">
@@ -75,7 +92,10 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
             <div className="text-center">
               <span className="font-medium text-lg">{user.name}</span>
               <div className="mt-2">
-                <Badge variant={user.role === 'instructor' ? 'default' : 'secondary'} className="text-sm">
+                <Badge
+                  variant={user.role === "instructor" ? "default" : "secondary"}
+                  className="text-sm"
+                >
                   {user.role}
                 </Badge>
               </div>
@@ -85,8 +105,14 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
                 {navLinks.map((link) => (
                   <li key={link.name}>
                     <Button
-                      variant="ghost"
-                      className="w-full justify-start text-left hover:bg-accent"
+                      variant={
+                        location.pathname === link.path ? "secondary" : "ghost"
+                      }
+                      className={`w-full justify-start text-left hover:bg-accent ${
+                        location.pathname === link.path
+                          ? "bg-accent text-accent-foreground font-semibold"
+                          : ""
+                      }`}
                       onClick={() => navigate(link.path)}
                     >
                       <link.icon className="w-4 h-4 mr-2" />
