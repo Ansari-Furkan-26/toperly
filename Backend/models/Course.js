@@ -1,35 +1,29 @@
 import mongoose from 'mongoose';
 
 const courseSchema = new mongoose.Schema({
-  customId: { type: String, unique: true }, // Auto-generated like CRS-JAVASCRIPT-0001
+  customId: { type: String, unique: true },
   title: { type: String, required: true, trim: true },
   description: { type: String, required: true },
-  instructor: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Instructor',
-    required: true 
-  },
+  instructor: { type: mongoose.Schema.Types.ObjectId, ref: 'Instructor', required: true },
   category: { type: String, required: true },
-  level: { 
-    type: String, 
-    enum: ['beginner', 'intermediate', 'advanced'], 
-    default: 'beginner' 
+  level: {
+    type: String,
+    enum: ['beginner', 'intermediate', 'advanced'],
+    default: 'beginner'
   },
   price: { type: Number, required: true, min: 0 },
   duration: { type: Number }, // in hours
-  
-  // Media files
-  thumbnail: { 
+  thumbnail: {
     filename: String,
     url: String,
-    bunnyFileId: String 
+    bunnyFileId: String
   },
   videos: [{
     title: String,
     filename: String,
     url: String,
     bunnyFileId: String,
-    duration: Number, // in minutes
+    duration: Number,
     order: Number
   }],
   materials: [{
@@ -39,15 +33,13 @@ const courseSchema = new mongoose.Schema({
     bunnyFileId: String,
     type: { type: String, enum: ['pdf', 'image', 'document'] }
   }],
-  
   isPublished: { type: Boolean, default: false },
-  enrolledStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
   rating: { type: Number, default: 0, min: 0, max: 5 },
   totalReviews: { type: Number, default: 0 },
-  
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
+
 
 // Auto-generate customId
 courseSchema.pre('save', async function (next) {

@@ -77,7 +77,7 @@ const CourseDetail = () => {
       console.log(user.token);
       setEnrollmentLoading(true);
       const res = await fetch(`${API_BASE}/students/enroll-course/${course._id}`, {
-        method: 'POST',
+        method: 'POST', 
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.token}`

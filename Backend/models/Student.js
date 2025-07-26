@@ -2,24 +2,18 @@ import mongoose from "mongoose";
 import Counter from "./Counter.js";
 
 const studentSchema = new mongoose.Schema({
-  customId: { type: String, unique: true }, // e.g. STU-Jane-0001
+  customId: { type: String, unique: true },
   name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   passwordHash: { type: String, required: true },
   profileImage: { type: String },
   phone: { type: String },
   language: { type: String, default: "en" },
-  enrolledCourses: [{
-    courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course" },
-    progress: { type: Number, default: 0 },
-    completedLessons: [String],
-    certificateIssued: { type: Boolean, default: false },
-    enrolledAt: { type: Date, default: Date.now }
-  }],
   role: { type: String, default: "student" },
   isSuspended: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
+
 
 // Pre-save hook to generate customId if not already set
 studentSchema.pre('save', async function (next) {
