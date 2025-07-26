@@ -1,11 +1,12 @@
 import express from 'express';
 import {
-  enrollCourse
-} from '../controllers/studentController.js';
+  enrollStudent, getMyEnrolledCourses
+} from '../controllers/enrollController.js';
 import { verifyToken } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-router.post('/enroll-course/:courseId', verifyToken,  enrollCourse);
+router.post('/:courseId', verifyToken,  enrollStudent);
+router.get('/my-courses', verifyToken, getMyEnrolledCourses);
 
 export default router;

@@ -42,7 +42,7 @@ interface Course {
 }
 
 const EnrolledCourses = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
   const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,9 +63,9 @@ const EnrolledCourses = () => {
   try {
     setLoading(true);
 
-    const response = await fetch(`${API_BASE}/students/${user.id}`, {
+    const response = await fetch(`${API_BASE}/enroll/my-courses`, {
       headers: {
-        Authorization: `Bearer ${user.token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
@@ -73,13 +73,13 @@ const EnrolledCourses = () => {
     if (response.ok) {
       const studentData = await response.json();
 
-      const studentEnrolledCourses = studentData.enrolledCourses.map((entry: any) => ({
-        ...entry.courseId,
-        enrolledAt: entry.enrolledAt,
-        progress: entry.progress,
-        completedLessons: entry.completedLessons,
-        certificateIssued: entry.certificateIssued,
-      }));
+      const studentEnrolledCourses = studentData.map((entry: any) => ({
+  ...entry.course,
+  enrolledAt: entry.enrolledAt,
+  progress: entry.progress,
+  completedLessons: entry.completedLessons,
+  certificateIssued: entry.certificateIssued,
+}));
 
       setEnrolledCourses(studentEnrolledCourses);
 

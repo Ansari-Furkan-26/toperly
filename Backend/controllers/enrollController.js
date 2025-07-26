@@ -1,4 +1,3 @@
-// POST /api/enroll/:courseId
 import EnrolledCourse from '../models/EnrolledCourse.js';
 
 export const enrollStudent = async (req, res) => {
