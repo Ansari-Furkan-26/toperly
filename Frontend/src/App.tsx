@@ -9,10 +9,36 @@ import { Auth } from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
 import CoursesCatalog from './components/CoursesCatalog';
 import CourseDetail from './components/CourseDetail';
-import Hub from "./pages/HUb";
+import Hub from "./pages/Hub";
 import NotFound from "./pages/NotFound";
+import { Sidebar } from "./components/Sidebar";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import EnrolledCourses from "./components/student/EnrolledCourses";
 
 const queryClient = new QueryClient();
+
+// Layout component for protected routes with Sidebar
+const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  if (!user) {
+    navigate('/auth');
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-subtle flex">
+      <Sidebar user={user} logout={logout} />
+      <div className="flex-1 ml-64 p-8">
+        <div className="max-w-7xl mx-auto">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -24,12 +50,12 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/hub" element={<Hub />} />
-            <Route path="/courses" element={<CoursesCatalog />} />
-            <Route path="/courses/:courseId" element={<CourseDetail />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
+            <Route path="/hub" element={<ProtectedLayout><Hub /></ProtectedLayout>} />
+            <Route path="/courses" element={<ProtectedLayout><CoursesCatalog /></ProtectedLayout>} />
+            <Route path="/courses/:courseId" element={<ProtectedLayout><CourseDetail /></ProtectedLayout>} />
+            <Route path="/enrolled-courses" element={<ProtectedLayout><EnrolledCourses /></ProtectedLayout>} />
+            <Route path="*" element={<ProtectedLayout><NotFound /></ProtectedLayout>} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

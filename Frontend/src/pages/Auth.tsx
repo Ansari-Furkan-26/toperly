@@ -17,7 +17,7 @@ export const Auth = () => {
   }
 
   const handleAuthSuccess = (role: 'student' | 'instructor') => {
-    navigate(role === 'student' ? '/hub' : '/dashboard');
+    navigate(role === 'student' ? '/dashboard' : '/dashboard');
   };
 
   return (
