@@ -1,4 +1,4 @@
-import React from 'react'
+
 import Media from './media'
 function HUb() {
   return (

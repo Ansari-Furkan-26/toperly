@@ -9,7 +9,7 @@ import { Auth } from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
 import CoursesCatalog from './components/CoursesCatalog';
 import CourseDetail from './components/CourseDetail';
-import Hub from "./pages/Hub";
+import Hub from "./pages/HUb";
 import NotFound from "./pages/NotFound";
 import { Sidebar } from "./components/Sidebar";
 import { useAuth } from "@/contexts/AuthContext";
