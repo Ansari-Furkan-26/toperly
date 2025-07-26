@@ -45,6 +45,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // On mount, try to load user from localStorage
   useEffect(() => {
     const userJson = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    if(token) setToken(token);
     if (userJson) setUser(JSON.parse(userJson));
   }, []);
 
