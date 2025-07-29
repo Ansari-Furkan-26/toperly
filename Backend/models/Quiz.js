@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const quizSchema = new mongoose.Schema({
   course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-  video: { type: mongoose.Schema.Types.ObjectId, required: true },
+  videoId: { type: mongoose.Schema.Types.ObjectId, required: true }, // Revert to videoId for embedded video _id
   title: { type: String, required: true, trim: true },
   questions: [{
     question: { type: String, required: true, trim: true },

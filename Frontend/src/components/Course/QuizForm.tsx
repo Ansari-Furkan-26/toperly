@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
 
@@ -33,10 +34,53 @@ const QuizForm = ({
     if (isOpen && courseId) {
       const fetchLessons = async () => {
         try {
-          const res = await axios.get(`/api/courses/${courseId}/videos`);
-          setLessons(res.data.videos); // Replace passed `lessons` with this state
+          console.log('Making API call to:', `/api/courses/${courseId}`);
+          
+          const token = localStorage.getItem("token");
+          const config = token ? {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          } : {};
+          
+          const res = await axios.get(`http://localhost:5000/api/courses/${courseId}`, config);
+          
+          console.log('=== API RESPONSE ===');
+          console.log('Full response:', res.data);
+          
+          // Based on your console output, try these paths:
+          let courseVideos = [];
+          
+          // Check multiple possible response structures
+          if (res.data && res.data.data && res.data.data.videos) {
+            courseVideos = res.data.data.videos;
+          } else if (res.data && res.data.course && res.data.course.videos) {
+            courseVideos = res.data.course.videos;
+          } else if (res.data && res.data.videos) {
+            courseVideos = res.data.videos;
+          } else if (Array.isArray(res.data)) {
+            // If the response is directly an array
+            courseVideos = res.data;
+          } else {
+            // Look for any property that contains an array of videos
+            Object.keys(res.data).forEach(key => {
+              if (Array.isArray(res.data[key]) && res.data[key].length > 0) {
+                const firstItem = res.data[key][0];
+                if (firstItem && (firstItem.title || firstItem.name || firstItem.video)) {
+                  courseVideos = res.data[key];
+                }
+              }
+            });
+          }
+          
+          console.log('Extracted courseVideos:', courseVideos);
+          console.log('courseVideos length:', courseVideos.length);
+          
+          setLessons(courseVideos);
+          
         } catch (err) {
-          console.error("Failed to fetch lessons", err);
+          console.error("Failed to fetch course", err);
+          setLessons([]);
         }
       };
 
@@ -129,12 +173,12 @@ const QuizForm = ({
     try {
       const payload = {
         course: courseId, // Use courseId from props
-        lesson: videoId || null, // Use lesson ID or null
+        videoId: videoId || null, // Use videoId or null
         title,
         questions,
       };
 
-      const response = await axios.post("/api/quizzes", payload, {
+      const response = await axios.post("http://localhost:5000/api/quizzes/", payload, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -202,8 +246,8 @@ const QuizForm = ({
             >
               <option value="">Select a lesson (optional)</option>
               {lessons?.map((lesson, index) => (
-                <option key={index} value={lesson._id}>
-                  {lesson.title}
+                <option key={lesson._id || index} value={lesson._id}>
+                  {lesson.title} {/* This will show "Intro to AIML" etc. */}
                 </option>
               ))}
             </select>

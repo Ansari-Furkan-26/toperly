@@ -1,4 +1,4 @@
-// controllers/quizController.js
+
 import Quiz from '../models/Quiz.js';
 import Course from '../models/Course.js';
 
@@ -24,7 +24,7 @@ export const createQuiz = async (req, res) => {
       });
     }
 
-    // Check if video exists in the course
+    // Check if videoId exists in the course's videos array
     const video = courseDoc.videos.id(videoId);
     if (!video) {
       return res.status(404).json({
@@ -53,7 +53,7 @@ export const createQuiz = async (req, res) => {
 
     const quiz = new Quiz({
       course,
-      video: videoId,
+      videoId, // Use videoId to match the schema
       title,
       questions
     });
@@ -79,7 +79,6 @@ export const createQuiz = async (req, res) => {
   }
 };
 
-
 // Get All Quizzes
 export const getAllQuizzes = async (req, res) => {
   try {
@@ -87,7 +86,7 @@ export const getAllQuizzes = async (req, res) => {
 
     const filter = {};
     if (course) filter.course = course;
-    if (video) filter.video = video;
+    if (video) filter.videoId = video; // Use videoId to match the schema
 
     const skip = (page - 1) * limit;
 
@@ -153,7 +152,7 @@ export const getQuizById = async (req, res) => {
 export const updateQuiz = async (req, res) => {
   try {
     const { id } = req.params;
-    const { course, video, title, questions } = req.body;
+    const { course, videoId, title, questions } = req.body;
 
     const quiz = await Quiz.findById(id);
     if (!quiz) {
@@ -185,7 +184,7 @@ export const updateQuiz = async (req, res) => {
 
     const updatedQuiz = await Quiz.findByIdAndUpdate(
       id,
-      { course, video, title, questions },
+      { course, videoId, title, questions },
       { new: true, runValidators: true }
     ).populate('course', 'title');
 
