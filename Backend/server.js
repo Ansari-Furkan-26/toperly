@@ -7,8 +7,10 @@ import authRoutes from './routes/authRoutes.js';
 import instructorRoutes from './routes/instructorRoutes.js';
 import studentRoutes from './routes/studentRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
-import wishlistRoutes from './routes/wishlist.routes.js'
-import enrollRoutes from './routes/enrollRoutes.js'
+import wishlistRoutes from './routes/wishlist.routes.js';
+import enrollRoutes from './routes/enrollRoutes.js';
+import quizRoutes from './routes/quizRoutes.js';
+import certificateRoutes from './routes/certificateRoutes.js';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import https from "https";
@@ -98,7 +100,9 @@ app.use('/api/instructors', instructorRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/enroll', enrollRoutes);
+app.use('/api/enroll', enrollRoutes); 
+app.use('/api/quizzes', quizRoutes);
+app.use('/api/certificates', certificateRoutes);
 
 // Error Handler
 app.use(globalErrorHandler);
