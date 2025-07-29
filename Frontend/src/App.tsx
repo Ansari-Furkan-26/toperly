@@ -18,6 +18,8 @@ import EnrolledCourses from "./components/student/EnrolledCourses";
 import CourseManagementSystem from "./pages/Course";
 import Wishlist from "./components/student/Wishlist";
 import EnrolledStudents from "./pages/EnrolledStudents";
+import StudentRoutes from "./components/StudentRoutes";
+import InstructorRoutes from "./components/InstructorRoutes";
 
 const queryClient = new QueryClient();
 
@@ -54,14 +56,14 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
-            <Route path="/hub" element={<ProtectedLayout><Hub /></ProtectedLayout>} />
-            <Route path="/courses" element={<ProtectedLayout><CoursesCatalog /></ProtectedLayout>} />
-            <Route path="/courses/:courseId" element={<ProtectedLayout><CourseDetail /></ProtectedLayout>} />
-            <Route path="/course-management" element={<ProtectedLayout><CourseManagementSystem /></ProtectedLayout>} />
+            <Route path="/hub" element={<ProtectedLayout><StudentRoutes><Hub /></StudentRoutes></ProtectedLayout>} />
+            <Route path="/courses" element={<ProtectedLayout><StudentRoutes><CoursesCatalog /></StudentRoutes></ProtectedLayout>} />
+            <Route path="/courses/:courseId" element={<ProtectedLayout><StudentRoutes><CourseDetail /></StudentRoutes></ProtectedLayout>} />
+            <Route path="/course-management" element={<ProtectedLayout><InstructorRoutes><CourseManagementSystem /></InstructorRoutes></ProtectedLayout>} />
             
-            <Route path="/enrolled-courses" element={<ProtectedLayout><EnrolledCourses /></ProtectedLayout>} />
-            <Route path="/wishlist" element={<ProtectedLayout><Wishlist /></ProtectedLayout>} />
-            <Route path="/students" element={<ProtectedLayout><EnrolledStudents /></ProtectedLayout>} />
+            <Route path="/enrolled-courses" element={<ProtectedLayout><StudentRoutes><EnrolledCourses /></StudentRoutes></ProtectedLayout>} />
+            <Route path="/wishlist" element={<ProtectedLayout><StudentRoutes><Wishlist /></StudentRoutes></ProtectedLayout>} />
+            <Route path="/students" element={<ProtectedLayout><InstructorRoutes><EnrolledStudents /></InstructorRoutes></ProtectedLayout>} />
 
             <Route path="*" element={<ProtectedLayout><NotFound /></ProtectedLayout>} />
           </Routes>
