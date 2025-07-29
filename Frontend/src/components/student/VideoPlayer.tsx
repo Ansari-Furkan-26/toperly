@@ -2,16 +2,18 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { 
   Lock, Play, Pause, Volume2, VolumeX, Maximize2, Minimize2, 
   CheckCircle, RotateCcw, RotateCw, Settings, 
-  SkipBack, SkipForward, Download, MessageSquare, Clock,
-  Monitor, Smartphone, Wifi, AlertCircle, Eye, EyeOff
+  SkipBack, SkipForward, MessageSquare, Clock,
+  AlertCircle
 } from 'lucide-react';
+
+const API_BASE = "http://localhost:5000/api";
 
 const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLoading, showToast }) => {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const progressBarRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
-  const progressSaveTimeoutRef = useRef(null);
+  const progressSaveIntervalRef = useRef(null);
   const hasAutoResumed = useRef(false);
 
   // Video state management
@@ -43,7 +45,7 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
 
   // Progress tracking
   const [videoProgress, setVideoProgress] = useState({
-    videoId: null,
+    videoTitle: null,
     currentTime: 0,
     duration: 0,
     completed: false,
@@ -53,7 +55,7 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
     chaptersCompleted: []
   });
 
-  // Sample chapters data (in real app, this would come from your API)
+  // Sample chapters data
   const chapters = [
     { id: 1, title: "Introduction", startTime: 0, endTime: 120 },
     { id: 2, title: "Basic Concepts", startTime: 120, endTime: 300 },
@@ -62,14 +64,13 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
     { id: 5, title: "Conclusion", startTime: 600, endTime: 720 }
   ];
 
-  // Sample subtitles (in real app, load from .vtt files)
+  // Sample subtitles
   const subtitles = [
     { start: 0, end: 5, text: "Welcome to this comprehensive course" },
     { start: 5, end: 10, text: "Today we'll be learning about advanced concepts" },
     { start: 10, end: 15, text: "Let's start with the basics" }
   ];
 
-  // Quality options for Bunny.net
   const qualityOptions = [
     { label: 'Auto', value: 'auto', resolution: 'Auto' },
     { label: '1080p', value: '1080p', resolution: '1920x1080' },
@@ -93,20 +94,13 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getStorageKey = (videoId) => `advanced_video_progress_${videoId}`;
-
-  const debugLog = (message, data = {}) => {
-    console.log(`🎥 [VideoPlayer] ${message}`, {
-      timestamp: new Date().toLocaleTimeString(),
-      videoId: video?.id,
-      ...data
-    });
-  };
-
   // 💾 PROGRESS MANAGEMENT
   const saveProgress = useCallback((immediate = false) => {
     const videoElement = videoRef.current;
-    if (!videoElement || !video?.id) return;
+    if (!videoElement || !video?.title || !isEnrolled) return;
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
 
     const currentTime = videoElement.currentTime;
     const duration = videoElement.duration;
@@ -116,71 +110,89 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
       const isCompleted = progressPercentage >= 90;
 
       const progressData = {
-        videoId: video.id,
+        videoTitle: video.title,
         currentTime,
         duration,
-        completed: isCompleted,
         progressPercentage,
-        lastWatched: new Date().toISOString(),
-        watchTime: videoProgress.watchTime + 1,
+        completed: isCompleted,
+        watchTime: videoProgress.watchTime + (immediate ? 0 : 5), // Increment watch time by interval
+        chaptersCompleted: getCurrentChapterProgress(currentTime),
         quality: videoState.quality,
-        volume: videoState.volume,
-        playbackRate: videoState.playbackRate,
-        chaptersCompleted: getCurrentChapterProgress(currentTime)
+        playbackRate: videoState.playbackRate
       };
 
       const saveAction = () => {
-        try {
-          localStorage.setItem(getStorageKey(video.id), JSON.stringify(progressData));
-          setVideoProgress(progressData);
-          
-          debugLog('Progress saved', {
-            currentTime: Math.floor(currentTime),
-            progressPercentage: Math.round(progressPercentage),
-            completed: isCompleted,
-            immediate
-          });
+        const blob = new Blob([JSON.stringify(progressData)], { type: 'application/json' });
+        const url = `${API_BASE}/enroll/${course._id}/progress?token=${encodeURIComponent(token)}`;
+        
+        const sent = navigator.sendBeacon(url, blob);
 
-          // Show completion notification
+        if (sent) {
+          setVideoProgress(progressData);
           if (isCompleted && !videoProgress.completed && showToast) {
             showToast('🎉 Video completed! Great job!', 'success');
           }
-          
-        } catch (error) {
-          debugLog('Failed to save progress', { error: error.message });
+        } else {
+          // Fallback to fetch if sendBeacon fails
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(progressData)
+          })
+            .then(res => {
+              if (!res.ok) throw new Error('Failed to save progress');
+              setVideoProgress(progressData);
+              if (isCompleted && !videoProgress.completed && showToast) {
+                showToast('🎉 Video completed! Great job!', 'success');
+              }
+            })
+            .catch(() => {
+              if (showToast) {
+                showToast('Failed to save progress', 'error');
+              }
+            });
         }
       };
 
       if (immediate) {
         saveAction();
       } else {
-        if (progressSaveTimeoutRef.current) {
-          clearTimeout(progressSaveTimeoutRef.current);
+        // Throttle non-immediate saves
+        if (!progressSaveIntervalRef.current) {
+          saveAction();
         }
-        progressSaveTimeoutRef.current = setTimeout(saveAction, 2000);
       }
     }
-  }, [video?.id, videoProgress.completed, videoProgress.watchTime, videoState.quality, videoState.volume, videoState.playbackRate, showToast]);
+  }, [video?.title, course?._id, videoProgress.completed, videoProgress.watchTime, videoState.quality, videoState.playbackRate, showToast, isEnrolled]);
 
-  const loadProgress = useCallback(() => {
-    if (!video?.id) return null;
-    
+  const loadProgress = useCallback(async () => {
+    if (!video?.title || !isEnrolled) return null;
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
+
     try {
-      const saved = localStorage.getItem(getStorageKey(video.id));
-      if (saved) {
-        const progressData = JSON.parse(saved);
-        debugLog('Progress loaded', {
-          savedTime: Math.floor(progressData.currentTime),
-          progressPercentage: Math.round(progressData.progressPercentage),
-          lastWatched: progressData.lastWatched
-        });
-        return progressData;
+      const res = await fetch(`${API_BASE}/enroll/${course._id}/progress/${encodeURIComponent(video.title)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const progress = await res.json();
+      
+      if (res.ok && progress.videoTitle) {
+        return progress;
       }
     } catch (error) {
-      debugLog('Failed to load progress', { error: error.message });
+      if (showToast) {
+        showToast('Failed to load progress', 'error');
+      }
     }
     return null;
-  }, [video?.id]);
+  }, [video?.title, course?._id, isEnrolled, showToast]);
 
   const getCurrentChapterProgress = (currentTime) => {
     return chapters
@@ -195,10 +207,8 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
 
     if (videoState.isPlaying) {
       videoElement.pause();
-      debugLog('Video paused');
     } else {
       videoElement.play();
-      debugLog('Video playing');
     }
   };
 
@@ -208,7 +218,6 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
     
     videoElement.currentTime = Math.max(0, Math.min(seconds, videoElement.duration));
     saveProgress(true);
-    debugLog('Seeked to', { time: Math.floor(seconds) });
   };
 
   const skipBackward = () => seekTo(videoState.currentTime - 10);
@@ -221,7 +230,6 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
     const volume = Math.max(0, Math.min(1, newVolume));
     videoElement.volume = volume;
     setVideoState(prev => ({ ...prev, volume, isMuted: volume === 0 }));
-    debugLog('Volume changed', { volume: Math.round(volume * 100) });
   };
 
   const toggleMute = () => {
@@ -231,7 +239,6 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
     const newMuted = !videoState.isMuted;
     videoElement.muted = newMuted;
     setVideoState(prev => ({ ...prev, isMuted: newMuted }));
-    debugLog('Mute toggled', { muted: newMuted });
   };
 
   const changePlaybackRate = (rate) => {
@@ -241,7 +248,6 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
     videoElement.playbackRate = rate;
     setVideoState(prev => ({ ...prev, playbackRate: rate }));
     setUiState(prev => ({ ...prev, showSpeedMenu: false }));
-    debugLog('Playback rate changed', { rate });
     
     if (showToast) {
       showToast(`Speed: ${rate}x`, 'info');
@@ -249,7 +255,6 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
   };
 
   const changeQuality = (quality) => {
-    debugLog('Quality change requested', { quality });
     setVideoState(prev => ({ ...prev, quality }));
     setUiState(prev => ({ ...prev, showQualityMenu: false }));
     
@@ -265,14 +270,10 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
     if (!document.fullscreenElement) {
       container.requestFullscreen().then(() => {
         setVideoState(prev => ({ ...prev, isFullscreen: true }));
-        debugLog('Entered fullscreen');
-      }).catch(err => {
-        debugLog('Fullscreen request failed', { error: err.message });
-      });
+      }).catch(() => {});
     } else {
       document.exitFullscreen().then(() => {
         setVideoState(prev => ({ ...prev, isFullscreen: false }));
-        debugLog('Exited fullscreen');
       });
     }
   };
@@ -295,28 +296,21 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
     const duration = videoElement.duration;
     
     setVideoState(prev => ({ ...prev, currentTime, duration }));
-    
-    // Auto-save progress every 10 seconds
-    if (Math.floor(currentTime) % 10 === 0) {
-      saveProgress();
-    }
   };
 
-  const handleLoadedMetadata = () => {
+  const handleLoadedMetadata = async () => {
     const videoElement = videoRef.current;
     if (!videoElement || hasAutoResumed.current) return;
 
-    const savedProgress = loadProgress();
+    const savedProgress = await loadProgress();
     setVideoState(prev => ({ ...prev, isLoading: false, duration: videoElement.duration }));
     
-    if (savedProgress) {
-      // Auto-resume if significant progress and not completed
+    if (savedProgress && savedProgress.currentTime > 0) {
       if (savedProgress.currentTime > 30 && !savedProgress.completed && 
           savedProgress.currentTime < savedProgress.duration - 30) {
         
         videoElement.currentTime = savedProgress.currentTime;
         
-        // Restore user preferences
         if (savedProgress.volume !== undefined) {
           videoElement.volume = savedProgress.volume;
           setVideoState(prev => ({ ...prev, volume: savedProgress.volume }));
@@ -330,11 +324,6 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
         setVideoProgress(savedProgress);
         hasAutoResumed.current = true;
         
-        debugLog('Auto-resumed from saved progress', {
-          time: Math.floor(savedProgress.currentTime),
-          progressPercentage: Math.round(savedProgress.progressPercentage)
-        });
-        
         if (showToast) {
           const minutes = Math.floor(savedProgress.currentTime / 60);
           const seconds = Math.floor(savedProgress.currentTime % 60);
@@ -346,12 +335,18 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
       } else {
         setVideoProgress(savedProgress);
       }
+    } else {
+      setVideoProgress({
+        videoTitle: video.title,
+        currentTime: 0,
+        duration: videoElement.duration,
+        completed: false,
+        progressPercentage: 0,
+        lastWatched: null,
+        watchTime: 0,
+        chaptersCompleted: []
+      });
     }
-    
-    debugLog('Video metadata loaded', {
-      duration: Math.floor(videoElement.duration),
-      hasAutoResumed: hasAutoResumed.current
-    });
   };
 
   const handleProgress = () => {
@@ -366,18 +361,15 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
 
   const handlePlay = () => {
     setVideoState(prev => ({ ...prev, isPlaying: true }));
-    debugLog('Video started playing');
   };
 
   const handlePause = () => {
     setVideoState(prev => ({ ...prev, isPlaying: false }));
     saveProgress(true);
-    debugLog('Video paused');
   };
 
   const handleError = (error) => {
     setVideoState(prev => ({ ...prev, error: error.message, isLoading: false }));
-    debugLog('Video error occurred', { error: error.message });
     
     if (showToast) {
       showToast('❌ Video playback error occurred', 'error');
@@ -420,36 +412,37 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
   // 🔄 LIFECYCLE EFFECTS
   useEffect(() => {
     hasAutoResumed.current = false;
-    if (video?.id) {
-      debugLog('Video changed', { title: video.title });
-      const savedProgress = loadProgress();
-      if (savedProgress) {
-        setVideoProgress(savedProgress);
-      } else {
-        setVideoProgress({
-          videoId: video.id,
-          currentTime: 0,
-          duration: 0,
-          completed: false,
-          progressPercentage: 0,
-          lastWatched: null,
-          watchTime: 0,
-          chaptersCompleted: []
-        });
-      }
+    if (video?.title && isEnrolled) {
+      loadProgress().then(savedProgress => {
+        if (savedProgress) {
+          setVideoProgress(savedProgress);
+        }
+      });
     }
-  }, [video?.id, loadProgress]);
+  }, [video?.title, loadProgress, isEnrolled]);
+
+  useEffect(() => {
+    if (videoState.isPlaying && isEnrolled) {
+      // Start interval for periodic progress saving (random 5-15s)
+      progressSaveIntervalRef.current = setInterval(() => {
+        saveProgress();
+      }, Math.floor(Math.random() * (15000 - 5000 + 1)) + 5000);
+
+      return () => {
+        clearInterval(progressSaveIntervalRef.current);
+        progressSaveIntervalRef.current = null;
+      };
+    }
+  }, [videoState.isPlaying, isEnrolled, saveProgress]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        debugLog('Page hidden - saving progress');
         saveProgress(true);
       }
     };
 
     const handleBeforeUnload = () => {
-      debugLog('Page unloading - saving progress');
       saveProgress(true);
     };
 
@@ -469,9 +462,10 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-      if (progressSaveTimeoutRef.current) clearTimeout(progressSaveTimeoutRef.current);
-      
-      saveProgress(true);
+      if (progressSaveIntervalRef.current) {
+        clearInterval(progressSaveIntervalRef.current);
+        saveProgress(true);
+      }
     };
   }, [saveProgress]);
 
@@ -662,7 +656,7 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
             {/* Left Controls */}
             <div className="flex items-center gap-4">
               <button onClick={togglePlayPause} className="hover:text-blue-400 transition-colors">
-                {videoState.isPlaying ? <Pause size={20} /> : <Play size={20} />}
+                {videoState.isPlaying ? <Pause size= {20} /> : <Play size={20} />}
               </button>
               
               <button onClick={skipBackward} className="hover:text-blue-400 transition-colors" title="Back 10s">
@@ -914,28 +908,6 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
           </div>
         )}
       </div>
-
-      {/* Debug Panel (Development Only) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="bg-gray-900 text-green-400 p-2 text-xs font-mono border-t border-gray-700">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <strong>Video State:</strong>
-              <div>Playing: {videoState.isPlaying ? 'Yes' : 'No'}</div>
-              <div>Time: {Math.floor(videoState.currentTime)}s / {Math.floor(videoState.duration)}s</div>
-              <div>Buffered: {Math.floor(videoState.buffered)}s ({Math.round((videoState.buffered / videoState.duration) * 100 || 0)}%)</div>
-              <div>Volume: {Math.round(videoState.volume * 100)}% {videoState.isMuted ? '(Muted)' : ''}</div>
-            </div>
-            <div>
-              <strong>Progress Data:</strong>
-              <div>Progress: {Math.round(videoProgress.progressPercentage || 0)}%</div>
-              <div>Completed: {videoProgress.completed ? 'Yes' : 'No'}</div>
-              <div>Watch Time: {Math.floor((videoProgress.watchTime || 0) / 60)}m</div>
-              <div>Auto-resumed: {hasAutoResumed.current ? 'Yes' : 'No'}</div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Copyright Notice */}
       <div className="absolute bottom-2 right-4 text-white text-xs opacity-30 pointer-events-none">

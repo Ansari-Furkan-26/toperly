@@ -5,9 +5,10 @@ import {
   getStudentById,
   updateStudent,
   deleteStudent,
-  enrollCourse
+  enrollCourse,
+  getMyStudents
 } from '../controllers/studentController.js';
-import { verifyToken } from '../middlewares/auth.middleware.js';
+import { isInstructor, verifyToken } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.get('/:id', getStudentById);   // get by id
 router.put('/:id', updateStudent);    // admin: update
 router.delete('/:id', deleteStudent); // admin: delete
 router.post('/enroll-course/:courseId', verifyToken,  enrollCourse);
+router.post('/get-mystudents', verifyToken, isInstructor, getMyStudents);
 
 export default router;

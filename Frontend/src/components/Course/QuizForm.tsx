@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useCallback, useEffect } from "react";
+import axios from "axios";
 
 interface QuizFormProps {
   courseId: string;
@@ -10,54 +10,62 @@ interface QuizFormProps {
   onSuccess: () => void;
 }
 
-const QuizForm = ({ courseId, courseName, isOpen, onClose, onSuccess }: QuizFormProps) => {
-  const [title, setTitle] = useState('');
-  const [videoId, setVideoId] = useState('');
+const QuizForm = ({
+  courseId,
+  courseName,
+  isOpen,
+  onClose,
+  onSuccess,
+}: QuizFormProps) => {
+  const [title, setTitle] = useState("");
+  const [videoId, setVideoId] = useState("");
   const [lessons, setLessons] = useState([]);
   const [questions, setQuestions] = useState([
     {
-      question: '',
-      options: ['', '', '', ''], // Start with 4 options
+      question: "",
+      options: ["", "", "", ""], // Start with 4 options
       correctAnswer: 0,
-    }
+    },
   ]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-  if (isOpen && courseId) {
-    const fetchLessons = async () => {
-      try {
-        const res = await axios.get(`/api/courses/${courseId}/videos`);
-        setLessons(res.data.videos); // Replace passed `lessons` with this state
-      } catch (err) {
-        console.error('Failed to fetch lessons', err);
-      }
-    };
+    if (isOpen && courseId) {
+      const fetchLessons = async () => {
+        try {
+          const res = await axios.get(`/api/courses/${courseId}/videos`);
+          setLessons(res.data.videos); // Replace passed `lessons` with this state
+        } catch (err) {
+          console.error("Failed to fetch lessons", err);
+        }
+      };
 
-    fetchLessons();
-  }
-}, [isOpen, courseId]);
-
+      fetchLessons();
+    }
+  }, [isOpen, courseId]);
 
   // ✅ Memoize handlers to prevent unnecessary re-renders
   const handleQuestionChange = useCallback((index: number, value: string) => {
-    setQuestions(prev => {
+    setQuestions((prev) => {
       const newQuestions = [...prev];
       newQuestions[index].question = value;
       return newQuestions;
     });
   }, []);
 
-  const handleOptionChange = useCallback((qIndex: number, oIndex: number, value: string) => {
-    setQuestions(prev => {
-      const newQuestions = [...prev];
-      newQuestions[qIndex].options[oIndex] = value;
-      return newQuestions;
-    });
-  }, []);
+  const handleOptionChange = useCallback(
+    (qIndex: number, oIndex: number, value: string) => {
+      setQuestions((prev) => {
+        const newQuestions = [...prev];
+        newQuestions[qIndex].options[oIndex] = value;
+        return newQuestions;
+      });
+    },
+    []
+  );
 
   const handleCorrectToggle = useCallback((qIndex: number, oIndex: number) => {
-    setQuestions(prev => {
+    setQuestions((prev) => {
       const newQuestions = [...prev];
       newQuestions[qIndex].correctAnswer = oIndex;
       return newQuestions;
@@ -65,33 +73,39 @@ const QuizForm = ({ courseId, courseName, isOpen, onClose, onSuccess }: QuizForm
   }, []);
 
   const addQuestion = useCallback(() => {
-    setQuestions(prev => [
+    setQuestions((prev) => [
       ...prev,
-      { question: '', options: ['', '', '', ''], correctAnswer: 0 }
+      { question: "", options: ["", "", "", ""], correctAnswer: 0 },
     ]);
   }, []);
 
-  const removeQuestion = useCallback((index: number) => {
-    if (questions.length > 1) {
-      setQuestions(prev => prev.filter((_, i) => i !== index));
-    }
-  }, [questions.length]);
+  const removeQuestion = useCallback(
+    (index: number) => {
+      if (questions.length > 1) {
+        setQuestions((prev) => prev.filter((_, i) => i !== index));
+      }
+    },
+    [questions.length]
+  );
 
   const addOption = useCallback((qIndex: number) => {
-    setQuestions(prev => {
+    setQuestions((prev) => {
       const newQuestions = [...prev];
-      newQuestions[qIndex].options.push('');
+      newQuestions[qIndex].options.push("");
       return newQuestions;
     });
   }, []);
 
   const removeOption = useCallback((qIndex: number, oIndex: number) => {
-    setQuestions(prev => {
+    setQuestions((prev) => {
       const newQuestions = [...prev];
       if (newQuestions[qIndex].options.length > 2) {
         newQuestions[qIndex].options.splice(oIndex, 1);
         // Adjust correct answer if necessary
-        if (newQuestions[qIndex].correctAnswer >= newQuestions[qIndex].options.length) {
+        if (
+          newQuestions[qIndex].correctAnswer >=
+          newQuestions[qIndex].options.length
+        ) {
           newQuestions[qIndex].correctAnswer = 0;
         }
       }
@@ -101,26 +115,28 @@ const QuizForm = ({ courseId, courseName, isOpen, onClose, onSuccess }: QuizForm
 
   // ✅ Reset form function
   const resetForm = useCallback(() => {
-    setTitle('');
-    setVideoId('');
-    setQuestions([{ question: '', options: ['', '', '', ''], correctAnswer: 0 }]);
+    setTitle("");
+    setVideoId("");
+    setQuestions([
+      { question: "", options: ["", "", "", ""], correctAnswer: 0 },
+    ]);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       const payload = {
         course: courseId, // Use courseId from props
         lesson: videoId || null, // Use lesson ID or null
         title,
-        questions
+        questions,
       };
 
-      const response = await axios.post('/api/quizzes', payload, {
+      const response = await axios.post("/api/quizzes", payload, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -128,13 +144,12 @@ const QuizForm = ({ courseId, courseName, isOpen, onClose, onSuccess }: QuizForm
       onSuccess();
       onClose();
       resetForm();
-      
-      alert('Quiz created successfully!');
-      console.log(response.data);
 
+      alert("Quiz created successfully!");
+      console.log(response.data);
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to create quiz');
+      alert(err.response?.data?.message || "Failed to create quiz");
     } finally {
       setLoading(false);
     }
@@ -142,7 +157,6 @@ const QuizForm = ({ courseId, courseName, isOpen, onClose, onSuccess }: QuizForm
 
   // Don't render if not open
   if (!isOpen) return null;
-
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -178,19 +192,20 @@ const QuizForm = ({ courseId, courseName, isOpen, onClose, onSuccess }: QuizForm
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Select Lesson (Optional)</label>
+            <label className="block text-sm font-medium mb-2">
+              Select Lesson (Optional)
+            </label>
             <select
               value={videoId}
               onChange={(e) => setVideoId(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             >
-             <option value="">Select a lesson (optional)</option>
-{lessons.map((lesson, index) => (
-  <option key={index} value={lesson._id}>
-    {lesson.title}
-  </option>
-))}
-
+              <option value="">Select a lesson (optional)</option>
+              {lessons?.map((lesson, index) => (
+                <option key={index} value={lesson._id}>
+                  {lesson.title}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -207,7 +222,10 @@ const QuizForm = ({ courseId, courseName, isOpen, onClose, onSuccess }: QuizForm
             </div>
 
             {questions.map((q, qIndex) => (
-              <div key={qIndex} className="border border-gray-200 rounded-lg p-4 mb-4 space-y-3">
+              <div
+                key={qIndex}
+                className="border border-gray-200 rounded-lg p-4 mb-4 space-y-3"
+              >
                 <div className="flex justify-between items-center">
                   <h4 className="font-medium">Question {qIndex + 1}</h4>
                   {questions.length > 1 && (
@@ -243,7 +261,9 @@ const QuizForm = ({ courseId, courseName, isOpen, onClose, onSuccess }: QuizForm
                       <input
                         type="text"
                         value={opt}
-                        onChange={(e) => handleOptionChange(qIndex, oIndex, e.target.value)}
+                        onChange={(e) =>
+                          handleOptionChange(qIndex, oIndex, e.target.value)
+                        }
                         placeholder={`Option ${oIndex + 1}`}
                         className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                         required
@@ -291,7 +311,7 @@ const QuizForm = ({ courseId, courseName, isOpen, onClose, onSuccess }: QuizForm
                   Creating...
                 </>
               ) : (
-                'Create Quiz'
+                "Create Quiz"
               )}
             </button>
           </div>

@@ -1,4 +1,3 @@
-// models/EnrolledCourse.js
 import mongoose from 'mongoose';
 
 const enrolledCourseSchema = new mongoose.Schema({
@@ -7,7 +6,19 @@ const enrolledCourseSchema = new mongoose.Schema({
   progress: { type: Number, default: 0 },
   completedLessons: [String],
   certificateIssued: { type: Boolean, default: false },
-  enrolledAt: { type: Date, default: Date.now }
+  enrolledAt: { type: Date, default: Date.now },
+  videoProgress: [{
+    videoTitle: { type: String, required: true },
+    currentTime: { type: Number, default: 0 },
+    duration: { type: Number, default: 0 },
+    progressPercentage: { type: Number, default: 0 },
+    completed: { type: Boolean, default: false },
+    watchTime: { type: Number, default: 0 },
+    chaptersCompleted: [Number],
+    quality: { type: String, default: 'auto' },
+    playbackRate: { type: Number, default: 1 },
+    lastWatched: { type: Date }
+  }]
 }, {
   timestamps: true
 });

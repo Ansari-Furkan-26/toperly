@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import EnrolledCourses from "./components/student/EnrolledCourses";
 import CourseManagementSystem from "./pages/Course";
 import Wishlist from "./components/student/Wishlist";
+import EnrolledStudents from "./pages/EnrolledStudents";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
             
             <Route path="/enrolled-courses" element={<ProtectedLayout><EnrolledCourses /></ProtectedLayout>} />
             <Route path="/wishlist" element={<ProtectedLayout><Wishlist /></ProtectedLayout>} />
+            <Route path="/students" element={<ProtectedLayout><EnrolledStudents /></ProtectedLayout>} />
 
             <Route path="*" element={<ProtectedLayout><NotFound /></ProtectedLayout>} />
           </Routes>

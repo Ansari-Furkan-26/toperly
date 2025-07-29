@@ -330,24 +330,27 @@ const CourseManagementSystem: FC = () => {
               }),
             });
           }
-          const lesson = courseData.lessons[0];
-          if (lesson.name.trim() && lesson.videoUrl && lesson.video) {
-            await fetch(`${API_BASE}/courses/${courseId}/videos`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${getAuthToken()}`,
-              },
-              body: JSON.stringify({
-                title: lesson.name,
-                filename: lesson.video?.name || 'lesson_1.mp4',
-                url: lesson.videoUrl,
-                bunnyFileId: lesson.bunnyFileId || `video_${Date.now()}`,
-                duration: 0,
-                order: 1,
-              }),
-            });
-          }
+          for (let i = 0; i < courseData.lessons.length; i++) {
+        const lesson = courseData.lessons[i];
+        
+        if (lesson.name.trim() && lesson.videoUrl && lesson.video) {
+          await fetch(`${API_BASE}/courses/${courseId}/videos`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${getAuthToken()}`,
+            },
+            body: JSON.stringify({
+              title: lesson.name,
+              filename: lesson.video?.name || `lesson_${i + 1}.mp4`,
+              url: lesson.videoUrl,
+              bunnyFileId: lesson.bunnyFileId || `video_${Date.now()}_${i}`,
+              duration: 0,
+              order: i + 1, // Set proper order
+            }),
+          });
+        }
+      }
           resetFormData();
           setCurrentView('dashboard');
           await fetchCourses();

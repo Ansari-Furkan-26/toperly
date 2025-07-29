@@ -1,5 +1,39 @@
-import Student from '../models/Student.js';
+import EnrolledCourse from '../models/EnrolledCourse.js';
 import Course from '../models/Course.js';
+import Student from '../models/Student.js';
+
+export const getMyStudents = async (req, res) => {
+  try {
+    const instructorId = req.user.id; // Set by verifyToken middleware
+
+    // Step 1: Find all courses created by this instructor
+    const instructorCourses = await Course.find({ instructor: instructorId }).select('_id');
+
+    const courseIds = instructorCourses.map(course => course._id);
+
+    // Step 2: Find enrolled students for these courses
+    const enrollments = await EnrolledCourse.find({ course: { $in: courseIds } })
+      .populate({
+        path: 'student',
+        select: 'name email profileImage'
+      })
+      .populate({
+        path: 'course',
+        select: 'title customId'
+      });
+
+    res.status(200).json({
+      success: true,
+      data: enrollments
+    });
+  } catch (error) {
+    console.error('Error fetching students:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch enrolled students'
+    });
+  }
+};
 
 // CREATE Student (admin use)
 export const createStudent = async (req, res) => {

@@ -50,12 +50,8 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
   const instructorLinks = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
     { name: "Course Management", icon: BookOpen, path: "/course-management" },
-    { name: "My Courses", icon: BookOpen, path: "/courses" },
     { name: "Earnings", icon: DollarSign, path: "/earnings" },
-    { name: "Upload Course", icon: Upload, path: "/upload-course" },
     { name: "Students", icon: Users, path: "/students" },
-    { name: "Reviews", icon: Star, path: "/reviews" },
-    { name: "Profile Settings", icon: Settings, path: "/profile-settings" },
   ];
 
   const studentLinks = [
@@ -64,7 +60,6 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
     { name: "Enrolled Courses", icon: BookOpen, path: "/enrolled-courses" },
     { name: "Wishlist", icon: Heart, path: "/wishlist" },
     { name: "Certificates", icon: Award, path: "/certificates" },
-    { name: "Profile Settings", icon: Settings, path: "/profile-settings" },
   ];
 
   const navLinks = user.role === "instructor" ? instructorLinks : studentLinks;

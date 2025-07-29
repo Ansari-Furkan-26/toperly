@@ -28,8 +28,8 @@ if (missingEnvVars.length > 0) {
 
 const app = express();
 app.use(cors({
-  origin: "http://localhost:8080",
-  credentials: true,
+  origin: '*',
+  credentials: true
 }));
 
 // Middleware
