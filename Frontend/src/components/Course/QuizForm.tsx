@@ -7,14 +7,17 @@ interface QuizFormProps {
   courseName: string;
   lessons: any[];
   isOpen: boolean;
+  quiz?: Quiz | null; 
   onClose: () => void;
   onSuccess: () => void;
 }
+
 
 const QuizForm = ({
   courseId,
   courseName,
   isOpen,
+  quiz,
   onClose,
   onSuccess,
 }: QuizFormProps) => {
@@ -29,6 +32,27 @@ const QuizForm = ({
     },
   ]);
   const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+  if (quiz) {
+    setTitle(quiz.title || "");
+    setVideoId(quiz.lesson || "");
+    setQuestions(
+      Array.isArray(quiz.questions) && quiz.questions.length
+        ? quiz.questions
+        : [
+            {
+              question: "",
+              options: ["", "", "", ""],
+              correctAnswer: 0,
+            },
+          ]
+    );
+  } else {
+    resetForm();
+  }
+}, [quiz]);
+
 
   useEffect(() => {
     if (isOpen && courseId) {
@@ -166,38 +190,49 @@ const QuizForm = ({
     ]);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const payload = {
-        course: courseId, // Use courseId from props
-        videoId: videoId || null, // Use videoId or null
-        title,
-        questions,
-      };
+  try {
+    const payload = {
+      course: courseId,
+      lesson: videoId || null,
+      title,
+      questions,
+    };
 
-      const response = await axios.post("http://localhost:5000/api/quizzes/", payload, {
+    let response;
+    if (quiz?._id) {
+      // Update Quiz
+      response = await axios.put(`http://localhost:5000/api/quizzes/${quiz._id}`, payload, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-
-      // ✅ Only call onSuccess once
-      onSuccess();
-      onClose();
-      resetForm();
-
-      alert("Quiz created successfully!");
-      console.log(response.data);
-    } catch (err: any) {
-      console.error(err);
-      alert(err.response?.data?.message || "Failed to create quiz");
-    } finally {
-      setLoading(false);
+    } else {
+      // Create Quiz
+      response = await axios.post("/api/quizzes", payload, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
     }
-  };
+
+    onSuccess();
+    onClose();
+    resetForm();
+
+    alert(quiz?._id ? "Quiz updated successfully!" : "Quiz created successfully!");
+    console.log(response.data);
+  } catch (err: any) {
+    console.error(err);
+    alert(err.response?.data?.message || (quiz?._id ? "Failed to update quiz" : "Failed to create quiz"));
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Don't render if not open
   if (!isOpen) return null;
@@ -349,14 +384,15 @@ const QuizForm = ({
               disabled={loading}
               className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Creating...
-                </>
-              ) : (
-                "Create Quiz"
-              )}
+             {loading ? (
+  <>
+    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+    {quiz?._id ? "Updating..." : "Creating..."}
+  </>
+) : (
+  quiz?._id ? "Update Quiz" : "Create Quiz"
+)}
+
             </button>
           </div>
         </form>

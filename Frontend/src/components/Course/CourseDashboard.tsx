@@ -55,8 +55,7 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
   const [courseQuizzes, setCourseQuizzes] = useState<Quiz[]>([]);
   const [quizLoading, setQuizLoading] = useState(false);
   const [showAddQuiz, setShowAddQuiz] = useState(false);
-
-  // ✅ Cache and request management
+  const [editQuiz, setEditQuiz] = useState<Quiz | null>(null);
   const quizCache = useRef<Map<string, Quiz[]>>(new Map());
   const currentRequestRef = useRef<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -194,16 +193,6 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
             className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 outline-none"
           >
             View Details
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(course);
-            }}
-            className="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 outline-none"
-            title="Edit Course"
-          >
-            <Edit size={16} />
           </button>
           <button
             onClick={(e) => {
@@ -380,9 +369,13 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
                               </p>
                             </div>
                             <div className="flex gap-2">
-                              <button className="text-blue-600 hover:text-blue-800 px-3 py-1 rounded-lg hover:bg-blue-50 transition-colors text-sm">
-                                Edit
-                              </button>
+                             <button
+  className="text-blue-600 hover:text-blue-800 px-3 py-1 rounded-lg hover:bg-blue-50 transition-colors text-sm"
+  onClick={() => setEditQuiz(quiz)}
+>
+  Edit
+</button>
+
                               <button 
                                 onClick={() => handleDeleteQuiz(quiz._id)}
                                 className="text-red-600 hover:text-red-800 px-3 py-1 rounded-lg hover:bg-red-50 transition-colors text-sm"
@@ -459,16 +452,21 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
         </div>
 
         {/* Quiz Form Modal */}
-        {showAddQuiz && (
-          <QuizForm
-            courseId={course._id}
-            courseName={course.title}
-            lessons={course.lessons || []}
-            isOpen={showAddQuiz}
-            onClose={() => setShowAddQuiz(false)}
-            onSuccess={handleQuizSuccess}
-          />
-        )}
+        {(showAddQuiz || editQuiz) && (
+  <QuizForm
+    courseId={course._id}
+    courseName={course.title}
+    lessons={course.lessons || []}
+    isOpen={showAddQuiz || !!editQuiz}
+    onClose={() => {
+      setShowAddQuiz(false);
+      setEditQuiz(null);
+    }}
+    onSuccess={handleQuizSuccess}
+    quiz={editQuiz} // Pass quiz for editing
+  />
+)}
+
       </div>
     );
   };
