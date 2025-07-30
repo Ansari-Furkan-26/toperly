@@ -23,7 +23,7 @@ const generateToken = (user) => {
 export const register = async (req, res) => {
   try {
     const { name, email, password, role, bio, expertise, phone, language } = req.body;
-
+    console.log(name);
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: 'Name, email, password and role are required' });
     }

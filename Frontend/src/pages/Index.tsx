@@ -18,7 +18,7 @@ const Index = () => {
   }, [navigate]);
 
   const handleGetStarted = () => {
-    navigate('/auth');
+    navigate('/auth/login');
   };
 
   const features = [

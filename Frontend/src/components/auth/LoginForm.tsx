@@ -22,7 +22,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       toast({
@@ -33,7 +32,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
       return;
     }
 
-    // Validate password
     if (formData.password.length < 6) {
       toast({
         title: "Invalid Password",
@@ -52,8 +50,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         });
         setFormData({ email: '', password: '' });
         setRole('student');
-        // Redirect based on role
-        navigate(role === 'student' ? '/hub' : '/dashboard');
+        navigate('/dashboard'); // Redirect to dashboard on successful login
         onSuccess?.();
       } else {
         toast({
@@ -129,6 +126,17 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
           >
             {isLoading ? 'Logging in...' : 'Login'}
           </Button>
+          <div className="text-center text-sm text-muted-foreground">
+            <p>
+              Don't have an account?{' '}
+              <button
+                onClick={() => navigate('/auth/register')}
+                className="text-primary hover:underline font-medium transition-smooth"
+              >
+                Sign up
+              </button>
+            </p>
+          </div>
         </form>
       </CardContent>
     </Card>

@@ -12,7 +12,7 @@ export const Auth = () => {
 
   // Redirect if already logged in based on role
   if (user) {
-    navigate(user.role === 'student' ? '/hub' : '/dashboard');
+    navigate(user?.role === 'student' ? '/hub' : '/dashboard');
     return null;
   }
 

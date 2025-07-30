@@ -1,4 +1,3 @@
-// AuthContext.tsx
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 export interface User {
@@ -30,7 +29,7 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
-  token:string;
+  token: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,13 +39,12 @@ const API_BASE = "http://localhost:5000/api/auth";
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState<string | null>(null);
 
-  // On mount, try to load user from localStorage
   useEffect(() => {
     const userJson = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    if(token) setToken(token);
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) setToken(storedToken);
     if (userJson) setUser(JSON.parse(userJson));
   }, []);
 
@@ -59,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         body: JSON.stringify({ email, password, role }),
       });
       const data = await response.json();
-      if (response.ok && data.user) {
+      if (response.ok && data.user && data.token) {
         setUser(data.user);
         setToken(data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
@@ -86,10 +84,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       const resData = await response.json();
       if (response.ok && resData.user) {
-        setUser(resData.user);
-        setToken(resData.token);
-        localStorage.setItem('user', JSON.stringify(resData.user));
-        localStorage.setItem('token', resData.token);
         return true;
       } else {
         throw new Error(resData.message || 'Registration failed');
@@ -104,9 +98,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    // Optionally, call backend logout endpoint if you implement session or refresh token invalidation
     fetch(`${API_BASE}/logout`, { method: 'POST' }).catch(console.error);
   };
 

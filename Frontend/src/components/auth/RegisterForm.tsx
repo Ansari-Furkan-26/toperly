@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { GraduationCap, User, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -29,11 +30,11 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
   const [expertiseInput, setExpertiseInput] = useState('');
   const { register, isLoading } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate role selection
     if (!role) {
       toast({
         title: "Role Required",
@@ -43,7 +44,6 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
       return;
     }
 
-    // Validate password match
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Password Mismatch",
@@ -53,7 +53,6 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
       return;
     }
 
-    // Validate password length
     if (formData.password.length < 6) {
       toast({
         title: "Password Too Short",
@@ -63,7 +62,6 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
       return;
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       toast({
@@ -74,7 +72,6 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
       return;
     }
 
-    // Prepare data for API call
     const registerData = {
       name: formData.name,
       email: formData.email,
@@ -108,6 +105,7 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           expertise: [],
         });
         setRole('');
+        navigate('/auth/login'); // Redirect to login page on success
         onSuccess?.();
       } else {
         toast({
@@ -160,7 +158,6 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Role Selection */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">I am a:</Label>
             <div className="grid grid-cols-2 gap-3">
@@ -199,7 +196,6 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
             </div>
           </div>
 
-          {/* Basic Information */}
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name *</Label>
@@ -255,7 +251,6 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
             </div>
           </div>
 
-          {/* Role-specific fields */}
           {role === 'student' && (
             <div className="space-y-4 p-4 bg-accent/50 rounded-lg">
               <h3 className="font-medium text-primary">Student Information</h3>
@@ -346,6 +341,17 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           >
             {isLoading ? 'Creating Account...' : 'Create Account'}
           </Button>
+          <div className="text-center text-sm text-muted-foreground">
+            <p>
+              Already have an account?{' '}
+              <button
+                onClick={() => navigate('/auth/login')}
+                className="text-primary hover:underline font-medium transition-smooth"
+              >
+                Sign in
+              </button>
+            </p>
+          </div>
         </form>
       </CardContent>
     </Card>
