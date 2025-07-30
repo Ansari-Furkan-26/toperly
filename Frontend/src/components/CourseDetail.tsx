@@ -20,6 +20,7 @@ const CourseDetail = () => {
   const [enrollmentLoading, setEnrollmentLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
+  const [instructor, setInstructor] = useState({});
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -46,7 +47,10 @@ const CourseDetail = () => {
     try {
       const res = await fetch(`${API_BASE}/courses/${courseId}`);
       const data = await res.json();
+      const res2 = await fetch(`${API_BASE}/instructors/${data.instructor}`);
+      const data2 = await res2.json();
       setCourse(data);
+      setInstructor(data2)
       if (data.videos?.length > 0) {
         setCurrentVideo(data.videos[0]);
       }
@@ -200,19 +204,19 @@ const CourseDetail = () => {
                 {course.description}
               </p>
 
-              {course.instructor && (
+              {instructor && (
                 <div className="border-t pt-6">
                   <h3 className="text-lg font-semibold mb-2">Instructor</h3>
                   <div className="flex items-center">
                     <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-4 text-white font-semibold">
-                      {course.instructor.name?.charAt(0)}
+                      {instructor?.name?.charAt(0)}
                     </div>
                     <div>
                       <h4 className="font-medium text-gray-900">
-                        {course.instructor.name}
+                        {instructor?.name}
                       </h4>
                       <p className="text-sm text-gray-600">
-                        {course.instructor.bio}
+                        {instructor?.bio}
                       </p>
                     </div>
                   </div>

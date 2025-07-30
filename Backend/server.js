@@ -11,6 +11,7 @@ import wishlistRoutes from './routes/wishlist.routes.js';
 import enrollRoutes from './routes/enrollRoutes.js';
 import quizRoutes from './routes/quizRoutes.js';
 import certificateRoutes from './routes/certificateRoutes.js';
+import quizAttemptRoutes from './routes/quizAttemptRoutes.js';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import https from "https";
@@ -28,7 +29,7 @@ if (missingEnvVars.length > 0) {
 
 const app = express();
 app.use(cors({
-  origin: '*',
+  origin: 'http://localhost:8080' || '*',
   credentials: true
 }));
 
@@ -103,6 +104,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/enroll', enrollRoutes); 
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/certificates', certificateRoutes);
+app.use('/api/quiz-attempts', quizAttemptRoutes);
 
 // Error Handler
 app.use(globalErrorHandler);

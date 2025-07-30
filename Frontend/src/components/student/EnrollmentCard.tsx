@@ -8,7 +8,7 @@ const EnrollmentCard = ({ course, isEnrolled, onEnroll, enrollmentLoading }) => 
         <div className="text-3xl font-bold text-gray-900 mb-2">
           {course.price === 0 ? 'Free' : `$${course.price}`}
         </div>
-        {course.price > 0 && <div className="text-sm text-gray-500 line-through">$99.99</div>}
+        {course.price > 0 && <div className="text-sm text-gray-500 line-through">$999.99</div>}
       </div>
 
       {!isEnrolled ? (

@@ -21,6 +21,7 @@ import Wishlist from "./components/student/Wishlist";
 import EnrolledStudents from "./pages/EnrolledStudents";
 import StudentRoutes from "./components/StudentRoutes";
 import InstructorRoutes from "./components/InstructorRoutes";
+import QuizPage from "./components/student/QuizPage";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,8 @@ const App = () => (
             <Route path="/hub" element={<ProtectedLayout><StudentRoutes><Hub /></StudentRoutes></ProtectedLayout>} />
             <Route path="/courses" element={<ProtectedLayout><StudentRoutes><CoursesCatalog /></StudentRoutes></ProtectedLayout>} />
             <Route path="/courses/:courseId" element={<ProtectedLayout><StudentRoutes><CourseDetail /></StudentRoutes></ProtectedLayout>} />
+            <Route path="/courses/:courseId/quiz/:quizId" element={<ProtectedLayout><StudentRoutes><QuizPage /></StudentRoutes></ProtectedLayout>} />
+
             <Route path="/course-management" element={<ProtectedLayout><InstructorRoutes><CourseManagementSystem /></InstructorRoutes></ProtectedLayout>} />
             <Route path="/enrolled-courses" element={<ProtectedLayout><StudentRoutes><EnrolledCourses /></StudentRoutes></ProtectedLayout>} />
             <Route path="/wishlist" element={<ProtectedLayout><StudentRoutes><Wishlist /></StudentRoutes></ProtectedLayout>} />

@@ -233,3 +233,32 @@ export const deleteQuiz = async (req, res) => {
     });
   }
 };
+
+// Get Quizzes by Course ID (without pagination)
+export const getQuizByCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    if (!courseId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Course ID is required'
+      });
+    }
+
+    const quizzes = await Quiz.find({ course: courseId })
+      .populate('course', 'title')
+      .sort({ createdAt: -1 });
+    res.status(200).json({
+      success: true,
+      data: quizzes
+    });
+  } catch (error) {
+    console.error('Get quizzes by course error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch quizzes for the course',
+      error: error.message
+    });
+  }
+};
+
