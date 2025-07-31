@@ -3,7 +3,7 @@ import {
   enrollStudent,
   getMyEnrolledCourses,
   saveVideoProgress,
-  getVideoProgress
+  getVideoProgress,
 } from '../controllers/enrollController.js';
 import { isStudent, verifyToken } from '../middlewares/auth.middleware.js';
 
@@ -14,4 +14,4 @@ router.get('/my-courses', verifyToken, isStudent, getMyEnrolledCourses);
 router.post('/:courseId/progress', verifyToken, isStudent, saveVideoProgress);
 router.get('/:courseId/progress/:videoTitle', verifyToken, isStudent, getVideoProgress);
 
-export default router;
+export default router; 

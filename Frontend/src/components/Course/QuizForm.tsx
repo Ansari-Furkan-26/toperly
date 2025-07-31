@@ -5,7 +5,7 @@ import axios from "axios";
 interface QuizFormProps {
   courseId: string;
   courseName: string;
-  lessons: any[];
+  videoId: any[];
   isOpen: boolean;
   quiz?: Quiz | null; 
   onClose: () => void;
@@ -36,7 +36,7 @@ const QuizForm = ({
   useEffect(() => {
   if (quiz) {
     setTitle(quiz.title || "");
-    setVideoId(quiz.lesson || "");
+    setVideoId(quiz.videoId || "");
     setQuestions(
       Array.isArray(quiz.questions) && quiz.questions.length
         ? quiz.questions
@@ -197,7 +197,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   try {
     const payload = {
       course: courseId,
-      lesson: videoId || null,
+      videoId: videoId || null,
       title,
       questions,
     };
@@ -212,7 +212,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       });
     } else {
       // Create Quiz
-      response = await axios.post("/api/quizzes", payload, {
+      response = await axios.post("http://localhost:5000/api/quizzes", payload, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

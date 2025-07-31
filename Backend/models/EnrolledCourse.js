@@ -9,7 +9,7 @@ const enrolledCourseSchema = new mongoose.Schema({
   enrolledAt: { type: Date, default: Date.now },
   videoProgress: [{
     videoTitle: { type: String, required: true },
-    currentTime: { type: Number, default: 0 },
+    currentTime: { type: Number, default: 0 }, 
     duration: { type: Number, default: 0 },
     progressPercentage: { type: Number, default: 0 },
     completed: { type: Boolean, default: false },
@@ -17,7 +17,7 @@ const enrolledCourseSchema = new mongoose.Schema({
     chaptersCompleted: [Number],
     quality: { type: String, default: 'auto' },
     playbackRate: { type: Number, default: 1 },
-    lastWatched: { type: Date }
+    lastWatched: { type: Date },
   }]
 }, {
   timestamps: true

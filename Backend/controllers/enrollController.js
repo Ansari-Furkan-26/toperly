@@ -1,5 +1,5 @@
 import EnrolledCourse from '../models/EnrolledCourse.js';
-
+ 
 export const enrollStudent = async (req, res) => {
   const studentId = req.user.id;
   const courseId = req.params.courseId;

@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect, useCallback, useRef } from 'react';
-import { Plus, Play, Award, Edit, Trash2, X, BookOpen, Users, Clock, Calendar, Brain, PlusCircle } from 'lucide-react';
+import { Plus, Play, Award, Edit, Trash2, X, BookOpen, Users, Clock, Calendar, Brain, PlusCircle, FileText, Link } from 'lucide-react';
 import QuizForm from './QuizForm';
 
 interface Course {
@@ -12,12 +12,42 @@ interface Course {
   price: number;
   duration?: number;
   tags?: string;
-  videos?: { title: string; url: string; order: number }[];
-  lessons?: { name: string; description: string; videoUrl: string }[];
+  videos?: { 
+    _id?: string;
+    title: string; 
+    url: string; 
+    order: number;
+    description?: string;
+    bunnyFileId?: string;
+    chapters: {
+      _id?: string;
+      title: string;
+      startTime: { hours: number; minutes: number; seconds: number };
+      endTime: { hours: number; minutes: number; seconds: number };
+    }[];
+  }[];
+  lessons?: { 
+    name: string; 
+    description: string; 
+    videoUrl: string;
+    chapters: {
+      _id?: string;
+      title: string;
+      startTime: { hours: number; minutes: number; seconds: number };
+      endTime: { hours: number; minutes: number; seconds: number };
+    }[];
+  }[];
   thumbnail?: { url: string };
   instructor?: { _id: string; id?: string; name: string };
   createdAt: string;
   updatedAt?: string;
+  materials: {
+    title: string;
+    filename: string;
+    url: string;
+    bunnyFileId?: string;
+    type: 'pdf' | 'document';
+  }[];
 }
 
 interface Quiz {
@@ -62,22 +92,18 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
 
   const API_BASE_URL = "http://localhost:5000";
 
-  // ✅ Optimized fetch function with caching and duplicate prevention
   const fetchCourseQuizzes = useCallback(async (courseId: string, forceRefresh = false) => {
-    // Prevent duplicate requests for the same course
     if (currentRequestRef.current === courseId && !forceRefresh) {
       console.log('Preventing duplicate request for course:', courseId);
       return;
     }
 
-    // Check cache first
     if (quizCache.current.has(courseId) && !forceRefresh) {
       console.log('Using cached data for course:', courseId);
       setCourseQuizzes(quizCache.current.get(courseId) || []);
       return;
     }
 
-    // Cancel any pending request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -100,7 +126,6 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
         const data = await response.json();
         const quizzes = data.data || [];
         
-        // Cache the result
         quizCache.current.set(courseId, quizzes);
         setCourseQuizzes(quizzes);
         console.log('Quiz data cached for course:', courseId, 'Count:', quizzes.length);
@@ -116,7 +141,6 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
     }
   }, [API_BASE_URL]);
 
-  // ✅ Only fetch when selectedCourse changes
   useEffect(() => {
     if (selectedCourse?._id) {
       fetchCourseQuizzes(selectedCourse._id);
@@ -125,15 +149,13 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
       currentRequestRef.current = null;
     }
 
-    // Cleanup on unmount or course change
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
     };
-  }, [selectedCourse?._id]); // ✅ Removed fetchCourseQuizzes from dependencies
+  }, [selectedCourse?._id, fetchCourseQuizzes]);
 
-  // ✅ Optimized delete with cache update
   const handleDeleteQuiz = useCallback(async (quizId: string) => {
     if (!selectedCourse?._id) return;
 
@@ -146,7 +168,6 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
       });
 
       if (response.ok) {
-        // ✅ Update cache and state directly without API call
         const updatedQuizzes = courseQuizzes.filter(quiz => quiz._id !== quizId);
         quizCache.current.set(selectedCourse._id, updatedQuizzes);
         setCourseQuizzes(updatedQuizzes);
@@ -157,10 +178,8 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
     }
   }, [selectedCourse?._id, courseQuizzes, API_BASE_URL]);
 
-  // ✅ Optimized success handler
   const handleQuizSuccess = useCallback(() => {
     if (selectedCourse?._id) {
-      // ✅ Invalidate cache and force refresh
       quizCache.current.delete(selectedCourse._id);
       fetchCourseQuizzes(selectedCourse._id, true);
       console.log('Quiz created, cache invalidated and refreshed');
@@ -210,8 +229,6 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
   );
 
   const CourseDetailsModal = ({ course, onClose }: { course: Course; onClose: () => void }) => {
-    // ✅ Removed duplicate useEffect and handleQuizSuccess function
-
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
         <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
@@ -302,6 +319,39 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
                   </div>
                 )}
 
+                {/* Materials */}
+                {course.materials && course.materials.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-xl font-semibold mb-3">Materials ({course.materials.length})</h3>
+                    <div className="space-y-3">
+                      {course.materials.map((material, index) => (
+                        <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-lg mb-2">{material.title}</h4>
+                              <p className="text-gray-600 text-sm mb-1">
+                                Type: {material.type === 'pdf' ? 'PDF' : 'Google Drive Link'}
+                              </p>
+                              <p className="text-gray-500 text-xs">
+                                {material.filename || 'No file uploaded'}
+                              </p>
+                            </div>
+                            <a
+                              href={material.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-200 transition-colors text-sm"
+                            >
+                              {material.type === 'pdf' ? <FileText size={14} /> : <Link size={14} />}
+                              Open
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Lessons */}
                 {course.lessons && course.lessons.length > 0 && (
                   <div className="mb-6">
@@ -316,6 +366,18 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
                               </h4>
                               {lesson.description && (
                                 <p className="text-gray-600 text-sm mb-3">{lesson.description}</p>
+                              )}
+                              {lesson.chapters && lesson.chapters.length > 0 && (
+                                <div className="mt-2">
+                                  <h5 className="text-sm font-semibold mb-2">Chapters ({lesson.chapters.length})</h5>
+                                  <ul className="list-disc pl-5 text-sm text-gray-600">
+                                    {lesson.chapters.map((chapter, chapterIndex) => (
+                                      <li key={chapterIndex} className="mb-1">
+                                        {chapter.title} ({chapter.startTime.hours}h {chapter.startTime.minutes}m {chapter.startTime.seconds}s - {chapter.endTime.hours}h {chapter.endTime.minutes}m {chapter.endTime.seconds}s)
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
                               )}
                             </div>
                             {lesson.videoUrl && (
@@ -369,13 +431,12 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
                               </p>
                             </div>
                             <div className="flex gap-2">
-                             <button
-  className="text-blue-600 hover:text-blue-800 px-3 py-1 rounded-lg hover:bg-blue-50 transition-colors text-sm"
-  onClick={() => setEditQuiz(quiz)}
->
-  Edit
-</button>
-
+                              <button
+                                className="text-blue-600 hover:text-blue-800 px-3 py-1 rounded-lg hover:bg-blue-50 transition-colors text-sm"
+                                onClick={() => setEditQuiz(quiz)}
+                              >
+                                Edit
+                              </button>
                               <button 
                                 onClick={() => handleDeleteQuiz(quiz._id)}
                                 className="text-red-600 hover:text-red-800 px-3 py-1 rounded-lg hover:bg-red-50 transition-colors text-sm"
@@ -449,24 +510,23 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Quiz Form Modal */}
+          {(showAddQuiz || editQuiz) && (
+            <QuizForm
+              courseId={course._id}
+              courseName={course.title}
+              lessons={course.lessons || []}
+              isOpen={showAddQuiz || !!editQuiz}
+              onClose={() => {
+                setShowAddQuiz(false);
+                setEditQuiz(null);
+              }}
+              onSuccess={handleQuizSuccess}
+              quiz={editQuiz}
+            />
+          )}
         </div>
-
-        {/* Quiz Form Modal */}
-        {(showAddQuiz || editQuiz) && (
-  <QuizForm
-    courseId={course._id}
-    courseName={course.title}
-    lessons={course.lessons || []}
-    isOpen={showAddQuiz || !!editQuiz}
-    onClose={() => {
-      setShowAddQuiz(false);
-      setEditQuiz(null);
-    }}
-    onSuccess={handleQuizSuccess}
-    quiz={editQuiz} // Pass quiz for editing
-  />
-)}
-
       </div>
     );
   };
