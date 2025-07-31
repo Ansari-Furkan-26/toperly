@@ -42,7 +42,7 @@ const QuizPage = () => {
 
     if (user?.id && quizId) loadQuizAndAttempt();
   }, [quizId, user]);
-
+  console.log(quiz)
   const handleOptionSelect = (questionIndex, optionIndex) => {
     setAnswers((prev) => ({ ...prev, [questionIndex]: optionIndex }));
   };

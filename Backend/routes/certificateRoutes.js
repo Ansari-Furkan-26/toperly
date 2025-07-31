@@ -6,7 +6,8 @@ import {
   getCertificateById,
   updateCertificate,
   deleteCertificate,
-  getStudentCertificates
+  getStudentCertificates,
+  issueCertificateIfEligible
 } from '../controllers/certificateController.js';
 
 const router = express.Router();
@@ -18,5 +19,8 @@ router.get('/:id', getCertificateById);
 router.put('/:id', updateCertificate);
 router.delete('/:id', deleteCertificate);
 router.get('/student/:studentId', getStudentCertificates);
+// Issue if eligible
+router.post('/issue/:courseId/:studentId', issueCertificateIfEligible);
+
 
 export default router;

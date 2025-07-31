@@ -15,6 +15,7 @@ import quizAttemptRoutes from './routes/quizAttemptRoutes.js';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import https from "https";
+import { uploadBufferToIPFS } from "./utils/uploadToIPFS.js";
 
 // Load environment variables
 dotenv.config({ path: "./.env" });

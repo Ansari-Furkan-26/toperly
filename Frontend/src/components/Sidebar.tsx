@@ -59,7 +59,6 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
     { name: "All Courses", icon: BookOpen, path: "/courses" },
     { name: "Enrolled Courses", icon: BookOpen, path: "/enrolled-courses" },
     { name: "Wishlist", icon: Heart, path: "/wishlist" },
-    { name: "Certificates", icon: Award, path: "/certificates" },
   ];
 
   const navLinks = user.role === "instructor" ? instructorLinks : studentLinks;

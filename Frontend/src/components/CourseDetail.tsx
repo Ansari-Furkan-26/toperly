@@ -21,6 +21,8 @@ const CourseDetail = () => {
   const [user, setUser] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
   const [instructor, setInstructor] = useState({});
+  const [certificateUrl, setCertificateUrl] = useState(null);
+  const [certificateLoading, setCertificateLoading] = useState(false);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -37,6 +39,40 @@ const CourseDetail = () => {
     }
   }, [user, course]);
 
+  const handleDownloadCertificate = async () => {
+    if (!user || !isEnrolled) return showToast("You must be enrolled", "error");
+
+    try {
+      setCertificateLoading(true); // Start loading
+      const res = await fetch(
+        `${API_BASE}/certificates/issue/${courseId}/${user.id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Certificate download failed");
+      }
+
+      setCertificateUrl(data.data.certificateUrl);
+      showToast("Certificate ready for download!", "success");
+
+      window.open(data.data.certificateUrl, "_blank");
+    } catch (err) {
+      console.error("Certificate error:", err);
+      showToast(err.message || "Certificate generation failed", "error");
+    } finally {
+      setCertificateLoading(false); // Stop loading
+    }
+  };
+
   const showToast = (text, type = "info") => {
     setToastMessage({ text, type });
     setTimeout(() => setToastMessage(null), 3000);
@@ -50,7 +86,7 @@ const CourseDetail = () => {
       const res2 = await fetch(`${API_BASE}/instructors/${data.instructor}`);
       const data2 = await res2.json();
       setCourse(data);
-      setInstructor(data2)
+      setInstructor(data2);
       if (data.videos?.length > 0) {
         setCurrentVideo(data.videos[0]);
       }
@@ -215,9 +251,7 @@ const CourseDetail = () => {
                       <h4 className="font-medium text-gray-900">
                         {instructor?.name}
                       </h4>
-                      <p className="text-sm text-gray-600">
-                        {instructor?.bio}
-                      </p>
+                      <p className="text-sm text-gray-600">{instructor?.bio}</p>
                     </div>
                   </div>
                 </div>
@@ -241,6 +275,45 @@ const CourseDetail = () => {
               isEnrolled={isEnrolled}
               showToast={showToast}
             />
+            {isEnrolled && (
+              <div className="mt-6">
+                <button
+                  onClick={handleDownloadCertificate}
+                  disabled={certificateLoading}
+                  className={`w-full flex items-center justify-center bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded transition duration-150 ${
+                    certificateLoading ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {certificateLoading ? (
+                    <span className="flex items-center gap-2">
+                      <svg
+                        className="animate-spin h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        ></path>
+                      </svg>
+                      Generating...
+                    </span>
+                  ) : (
+                    <>Download Certificate</>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
