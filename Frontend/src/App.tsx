@@ -13,6 +13,7 @@ import CourseDetail from './components/CourseDetail';
 import Hub from "./pages/HUb";
 import NotFound from "./pages/NotFound";
 import { Sidebar } from "./components/Sidebar";
+import { Navbar } from "./components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import EnrolledCourses from "./components/student/EnrolledCourses";
@@ -22,6 +23,8 @@ import EnrolledStudents from "./pages/EnrolledStudents";
 import StudentRoutes from "./components/StudentRoutes";
 import InstructorRoutes from "./components/InstructorRoutes";
 import QuizPage from "./components/student/QuizPage";
+import { ProfileSettings } from "./components/ProfileSettings"; 
+import { Notifications } from "./components/Notifications";
 
 const queryClient = new QueryClient();
 
@@ -35,11 +38,14 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex">
-      <Sidebar user={user} logout={logout} />
-      <div className="flex-1 ml-64 p-8">
-        <div className="max-w-7xl mx-auto">
-          {children}
+    <div className="min-h-screen bg-gradient-subtle ml-64 flex flex-col">
+      <Navbar />
+      <div className="flex flex-1">
+        <Sidebar user={user} logout={logout} />
+        <div className="flex-1 p-8">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </div>
       </div>
     </div>
@@ -62,11 +68,12 @@ const App = () => (
             <Route path="/courses" element={<ProtectedLayout><StudentRoutes><CoursesCatalog /></StudentRoutes></ProtectedLayout>} />
             <Route path="/courses/:courseId" element={<ProtectedLayout><StudentRoutes><CourseDetail /></StudentRoutes></ProtectedLayout>} />
             <Route path="/courses/:courseId/quiz/:quizId" element={<ProtectedLayout><StudentRoutes><QuizPage /></StudentRoutes></ProtectedLayout>} />
-
             <Route path="/course-management" element={<ProtectedLayout><InstructorRoutes><CourseManagementSystem /></InstructorRoutes></ProtectedLayout>} />
             <Route path="/enrolled-courses" element={<ProtectedLayout><StudentRoutes><EnrolledCourses /></StudentRoutes></ProtectedLayout>} />
             <Route path="/wishlist" element={<ProtectedLayout><StudentRoutes><Wishlist /></StudentRoutes></ProtectedLayout>} />
             <Route path="/students" element={<ProtectedLayout><InstructorRoutes><EnrolledStudents /></InstructorRoutes></ProtectedLayout>} />
+            <Route path="/profile-settings" element={<ProtectedLayout><ProfileSettings /></ProtectedLayout>} />
+            <Route path="/notifications" element={<ProtectedLayout><Notifications /></ProtectedLayout>} />
             <Route path="*" element={<ProtectedLayout><NotFound /></ProtectedLayout>} />
           </Routes>
         </BrowserRouter>

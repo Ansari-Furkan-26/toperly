@@ -50,7 +50,6 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
   const instructorLinks = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
     { name: "Course Management", icon: BookOpen, path: "/course-management" },
-    { name: "Earnings", icon: DollarSign, path: "/earnings" },
     { name: "Students", icon: Users, path: "/students" },
   ];
 
@@ -68,7 +67,7 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
       <div className="flex flex-col h-full">
         <div className="p-6 border-b">
           <div className="flex items-center space-x-3">
-            <div className="bg-gradient-primary p-2 rounded-lg">
+            <div className="bg-gradient-primary px-2 rounded-lg">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
