@@ -10,7 +10,7 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { Dashboard } from "./pages/Dashboard";
 import CoursesCatalog from './components/CoursesCatalog';
 import CourseDetail from './components/CourseDetail';
-import Hub from "./pages/HUb";
+import Hub from "./pages/Hub";
 import NotFound from "./pages/NotFound";
 import { Sidebar } from "./components/Sidebar";
 import { Navbar } from "./components/Navbar";
