@@ -15,6 +15,9 @@ import quizAttemptRoutes from './routes/quizAttemptRoutes.js';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import https from "https";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import { uploadBufferToIPFS } from "./utils/uploadToIPFS.js";
 
 // Load environment variables
@@ -29,7 +32,9 @@ if (missingEnvVars.length > 0) {
 }
 
 const app = express();
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use('/temp', express.static(path.join(__dirname, 'public/temp')));
 const allowedOrigins = [
   'http://localhost:8080',
   'https://toperly-unsquare-dashboard.netlify.app'

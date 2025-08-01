@@ -41,20 +41,24 @@ export const issueCertificateIfEligible = async (req, res) => {
       course: courseId,
     });
 
-    if (quizzes.length === 0 || attempts.length < quizzes.length) {
+    if (quizzes.length > 0 && attempts.length < quizzes.length) {
       return res
         .status(400)
         .json({ success: false, message: "All quizzes not attempted" });
     }
 
-    const totalScore = attempts.reduce((acc, a) => acc + a.score, 0);
-    const avgScore = totalScore / quizzes.length;
+    let avgScore = 100; // Default full score when no quizzes
 
-    if (avgScore < 75) {
-      return res.status(400).json({
-        success: false,
-        message: `Minimum 75% required, you got ${avgScore.toFixed(2)}%`,
-      });
+    if (quizzes.length > 0) {
+      const totalScore = attempts.reduce((acc, a) => acc + a.score, 0);
+      avgScore = totalScore / quizzes.length;
+
+      if (avgScore < 75) {
+        return res.status(400).json({
+          success: false,
+          message: `Minimum 75% required, you got ${avgScore.toFixed(2)}%`,
+        });
+      }
     }
 
     // ✅ Generate Professional PDF Certificate

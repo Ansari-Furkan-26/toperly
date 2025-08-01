@@ -73,7 +73,7 @@ const EnrolledCourses = () => {
       if (response.ok) {
         const studentData = await response.json();
 
-        const studentEnrolledCourses = studentData.map((entry: any) => ({
+        const studentEnrolledCourses = studentData?.map((entry: any) => ({
           ...entry?.course,
           enrolledAt: entry?.enrolledAt,
           progress: entry?.progress,
@@ -83,7 +83,7 @@ const EnrolledCourses = () => {
 
         setEnrolledCourses(studentEnrolledCourses);
 
-        const uniqueCategories = [...new Set(studentEnrolledCourses.map((course: Course) => course?.category).filter(Boolean))];
+        const uniqueCategories = [...new Set(studentEnrolledCourses?.map((course: Course) => course?.category).filter(Boolean))];
         setCategories(uniqueCategories);
       } else {
         console.error('Failed to fetch student data');

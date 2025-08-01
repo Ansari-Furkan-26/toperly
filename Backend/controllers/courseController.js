@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 
 export const createCourse = async (req, res) => {
   try {
-    const { title, description, category, level, price, duration, instructorId, videos, materials } = req.body;
+    const { title, description, category, level, price, duration, thumbnail, instructorId, videos, materials } = req.body;
     
     let instructorObjectId;
     
@@ -33,8 +33,9 @@ export const createCourse = async (req, res) => {
       level,
       price,
       duration,
+      thumbnail,
       videos: videos || [],
-      materials: materials || [], // Include materials if provided
+      materials: materials || [],
     });
 
     await course.save();
@@ -87,14 +88,13 @@ export const getCourseById = async (req, res) => {
 
 export const updateCourse = async (req, res) => {
   try {
-    const { title, description, category, level, price, duration, videos, materials } = req.body;
+    const { title, description, category, level, price, duration, videos } = req.body;
     const course = await Course.findById(req.params.id);
 
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
-
-    // Update course fields if provided
+    console.log(videos)
     if (title) course.title = title;
     if (description) course.description = description;
     if (category) course.category = category;
@@ -102,7 +102,6 @@ export const updateCourse = async (req, res) => {
     if (price !== undefined) course.price = price;
     if (duration !== undefined) course.duration = duration;
     if (videos) course.videos = videos;
-    if (materials) course.materials = materials; // Update materials if provided
 
     course.updatedAt = new Date();
     await course.save();
@@ -139,7 +138,7 @@ export const addThumbnailToCourse = async (req, res) => {
   try {
     const { filename, url, bunnyFileId } = req.body;
     const course = await Course.findById(req.params.id);
-
+    console.log(url)
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
@@ -167,3 +166,201 @@ export const deleteCourse = async (req, res) => {
     res.status(500).json({ message: 'Server error deleting course' });
   }
 };
+
+export const getInstructorsCourses = async (req, res) => {
+  try {
+    const {id} = req.user;
+    
+    const course = await Course.find({instructor:id});
+
+    if (!course) {
+      return res.status(404).json({ message: 'No course found' });
+    }
+    res.json(course);
+  } catch (error) {
+    console.error('Get course error:', error);
+    res.status(500).json({ message: 'Server error fetching course' });
+  }
+};
+
+export const addMaterialToCourse = async (req, res) => {
+  try {
+    const { title, filename, url, bunnyFileId, type, content } = req.body;
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    if (!title || !filename || !url || !type) {
+      return res.status(400).json({ message: 'Title, filename, url, and type are required' });
+    }
+
+    const validTypes = ['pdf', 'image', 'document'];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({ message: 'Invalid material type. Must be pdf, image, or document' });
+    }
+
+    // ✅ Check for duplicate material (based on url or filename)
+    const exists = course.materials.some(m => m.filename === filename || m.url === url);
+    if (exists) {
+      return res.status(409).json({ message: 'Material with the same file or URL already exists' });
+    }
+
+    const material = {
+      title,
+      filename,
+      url,
+      bunnyFileId: bunnyFileId || `material_${Date.now()}`,
+      type,
+      ...(content && type === 'document' ? { content } : {}),
+    };
+
+    course.materials.push(material);
+    course.updatedAt = new Date();
+    await course.save();
+
+    res.json({ message: 'Material added to course successfully', course });
+  } catch (error) {
+    console.error('Add material error:', error);
+    res.status(500).json({ message: 'Server error adding material to course', error: error.message });
+  }
+};
+
+export const updateMaterial = async (req, res) => {
+  try {
+    const { materialId } = req.params; // This is bunnyFileId
+    const { title, filename, url, bunnyFileId, type, content } = req.body;
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // ✅ Find material by bunnyFileId
+    const material = course.materials.find(m => m.bunnyFileId === materialId);
+    if (!material) {
+      return res.status(404).json({ message: 'Material not found' });
+    }
+
+    if (title) material.title = title;
+    if (filename) material.filename = filename;
+    if (url) material.url = url;
+    if (bunnyFileId) material.bunnyFileId = bunnyFileId; // Optional update
+    if (type) material.type = type;
+    if (content && type === 'document') material.content = content;
+
+    course.updatedAt = new Date();
+    await course.save();
+
+    res.json({ message: 'Material updated successfully', material });
+  } catch (err) {
+    console.error('Update material error:', err);
+    res.status(500).json({ message: 'Server error updating material', error: err.message });
+  }
+};
+
+
+export const deleteMaterial = async (req, res) => {
+  try {
+    const { materialId } = req.params; // This is bunnyFileId
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // ✅ Find material by bunnyFileId
+    const index = course.materials.findIndex(m => m.bunnyFileId === materialId);
+    if (index === -1) {
+      return res.status(404).json({ message: 'Material not found' });
+    }
+
+    // ✅ Remove from array
+    course.materials.splice(index, 1);
+    course.updatedAt = new Date();
+    await course.save();
+
+    res.json({ message: 'Material deleted successfully' });
+  } catch (err) {
+    console.error('Delete material error:', err);
+    res.status(500).json({ message: 'Server error deleting material', error: err.message });
+  }
+};
+
+export const addChapterToVideo = async (req, res) => {
+  try {
+    const { id, videoId } = req.params; // courseId and video bunnyFileId
+    const { title, startTime, endTime } = req.body;
+
+    const course = await Course.findById(id);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const video = course.videos.find(v => v.bunnyFileId === videoId);
+    if (!video) return res.status(404).json({ message: 'Video not found' });
+
+    const chapter = { title, startTime, endTime };
+    video.chapters.push(chapter);
+    course.updatedAt = new Date();
+    await course.save();
+
+    res.status(201).json({ message: 'Chapter added successfully', chapters: video.chapters });
+  } catch (err) {
+    console.error('Add chapter error:', err);
+    res.status(500).json({ message: 'Server error adding chapter', error: err.message });
+  }
+};
+
+export const updateChapter = async (req, res) => {
+  try {
+    const { id, videoId, chapterId } = req.params; // chapterId as index or _id
+    const { title, startTime, endTime } = req.body;
+
+    const course = await Course.findById(id);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const video = course.videos.find(v => v.bunnyFileId === videoId);
+    if (!video) return res.status(404).json({ message: 'Video not found' });
+
+    const chapterIndex = video.chapters.findIndex((_, idx) => idx.toString() === chapterId);
+    if (chapterIndex === -1) return res.status(404).json({ message: 'Chapter not found' });
+
+    if (title) video.chapters[chapterIndex].title = title;
+    if (startTime) video.chapters[chapterIndex].startTime = startTime;
+    if (endTime) video.chapters[chapterIndex].endTime = endTime;
+
+    course.updatedAt = new Date();
+    await course.save();
+
+    res.json({ message: 'Chapter updated successfully', chapter: video.chapters[chapterIndex] });
+  } catch (err) {
+    console.error('Update chapter error:', err);
+    res.status(500).json({ message: 'Server error updating chapter', error: err.message });
+  }
+};
+
+
+export const deleteChapter = async (req, res) => {
+  try {
+    const { id, videoId, chapterId } = req.params; // chapterId = index
+
+    const course = await Course.findById(id);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const video = course.videos.find(v => v.bunnyFileId === videoId);
+    if (!video) return res.status(404).json({ message: 'Video not found' });
+
+    const chapterIndex = video.chapters.findIndex((_, idx) => idx.toString() === chapterId);
+    if (chapterIndex === -1) return res.status(404).json({ message: 'Chapter not found' });
+
+    video.chapters.splice(chapterIndex, 1);
+    course.updatedAt = new Date();
+    await course.save();
+
+    res.json({ message: 'Chapter deleted successfully' });
+  } catch (err) {
+    console.error('Delete chapter error:', err);
+    res.status(500).json({ message: 'Server error deleting chapter', error: err.message });
+  }
+};
+

@@ -1,4 +1,3 @@
-
 import React, { FC, useEffect } from 'react';
 import { ArrowLeft, Upload, Save, Plus, Trash2 } from 'lucide-react';
 
@@ -6,8 +5,7 @@ interface CourseFormProps {
   isEdit: boolean;
   loading: boolean;
   courseData: {
-    thumbnail: File | null;
-    thumbnailUrl: string;
+    thumbnail: {filename: string, url: string, bunnyfileId: string}
     title: string;
     description: string;
     category: string;
@@ -73,6 +71,7 @@ const CourseForm: FC<CourseFormProps> = ({
   submitCourse,
 }) => {
   // Initialize default blank fields for new course
+  console.log(courseData)
   useEffect(() => {
     if (!isEdit && (!courseData?.lessons?.length || !courseData?.materials?.length)) {
       setCourseData({
@@ -320,9 +319,9 @@ const CourseForm: FC<CourseFormProps> = ({
     if (courseData.price === undefined || courseData.price < 0) newErrors.price = 'Price must be non-negative';
     
     // Validate lessons and chapters
-    courseData.lessons.forEach((lesson, lessonIndex) => {
+    courseData.lessons?.forEach((lesson, lessonIndex) => {
       if (!lesson.name) newErrors[`lesson_${lessonIndex}_name`] = 'Lesson name is required';
-      lesson.chapters.forEach((chapter, chapterIndex) => {
+      lesson.chapters?.forEach((chapter, chapterIndex) => {
         if (!chapter.title) newErrors[`lesson_${lessonIndex}_chapter_${chapterIndex}_title`] = 'Chapter title is required';
         const startSeconds = chapter.startTime.hours * 3600 + chapter.startTime.minutes * 60 + chapter.startTime.seconds;
         const endSeconds = chapter.endTime.hours * 3600 + chapter.endTime.minutes * 60 + chapter.endTime.seconds;
@@ -345,7 +344,7 @@ const CourseForm: FC<CourseFormProps> = ({
     
     // Validate materials
    // Validate materials
-courseData.materials.forEach((material, materialIndex) => {
+courseData.materials?.forEach((material, materialIndex) => {
   // Material title and URL are optional now!
   if (!['pdf', 'document'].includes(material.type)) newErrors[`material_${materialIndex}_type`] = 'Material type must be pdf or document';
 });
@@ -365,7 +364,7 @@ courseData.materials.forEach((material, materialIndex) => {
         price: courseData.price,
         duration: courseData.duration,
         instructorId: currentUser?.id,
-        videos: courseData.lessons.map(lesson => ({
+        videos: courseData.lessons?.map(lesson => ({
           _id: lesson._id,
           title: lesson.name,
           description: lesson.description,
@@ -375,11 +374,11 @@ courseData.materials.forEach((material, materialIndex) => {
           order: lesson.order || 0,
           chapters: lesson.chapters,
         })),
-        materials: courseData.materials.map(material => ({
+        materials: courseData.materials?.map(material => ({
           _id: material._id,
           title: material.title,
           url: material.url,
-          filename: material.filename || '',
+          filename: material?.filename || '',
           bunnyFileId: material.bunnyFileId || '',
           type: material.type || 'document',
         })),
@@ -403,6 +402,17 @@ courseData.materials.forEach((material, materialIndex) => {
       if (!response.ok) {
         throw new Error(data.message || 'Failed to submit course');
       }
+
+      if (courseData.thumbnail) {
+      await fetch(`http://localhost:5000/api/courses/${editingCourse._id}/thumbnail`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(courseData.thumbnail),
+      });
+    }
       
       console.log('Course submitted successfully:', data);
       setErrors({});
@@ -453,9 +463,9 @@ courseData.materials.forEach((material, materialIndex) => {
                 id="thumbnail-upload"
               />
               <label htmlFor="thumbnail-upload" className="cursor-pointer">
-                {courseData.thumbnailUrl ? (
+                {courseData.thumbnail ? (
                   <div className="relative">
-                    <img src={courseData.thumbnailUrl} alt="Thumbnail preview" className="w-full h-32 object-cover rounded mb-2" />
+                    <img src={courseData?.thumbnail?.url} alt="Thumbnail preview" className="w-full h-32 object-cover rounded mb-2" />
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                       <span className="text-white text-sm">Click to change</span>
                     </div>
@@ -589,7 +599,7 @@ courseData.materials.forEach((material, materialIndex) => {
         </div>
         <div className="space-y-6">
           {Array.isArray(courseData.materials) && courseData.materials.length > 0 ? (
-            courseData.materials.map((material, materialIndex) => (
+            courseData.materials?.map((material, materialIndex) => (
               <div key={materialIndex} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-medium">Material {materialIndex + 1}</h4>
@@ -602,7 +612,7 @@ courseData.materials.forEach((material, materialIndex) => {
                     Remove
                   </button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Material Title *</label>
                     <input
@@ -616,22 +626,6 @@ courseData.materials.forEach((material, materialIndex) => {
                     />
                     {errors[`material_${materialIndex}_title`] && (
                       <p className="text-red-500 text-sm mt-1">{errors[`material_${materialIndex}_title`]}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Type *</label>
-                    <select
-                      value={material.type}
-                      onChange={(e) => updateMaterial(materialIndex, 'type', e.target.value as 'pdf' | 'document')}
-                      className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors ${
-                        errors[`material_${materialIndex}_type`] ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                    >
-                      <option value="document">Google Drive Link</option>
-                      <option value="pdf">PDF Upload</option>
-                    </select>
-                    {errors[`material_${materialIndex}_type`] && (
-                      <p className="text-red-500 text-sm mt-1">{errors[`material_${materialIndex}_type`]}</p>
                     )}
                   </div>
                   <div>
@@ -678,30 +672,7 @@ courseData.materials.forEach((material, materialIndex) => {
                     )}
                   </div>
                 </div>
-                {material.type === 'pdf' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Filename</label>
-                      <input
-                        type="text"
-                        value={material.filename}
-                        onChange={(e) => updateMaterial(materialIndex, 'filename', e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                        placeholder="Enter filename"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Bunny File ID</label>
-                      <input
-                        type="text"
-                        value={material.bunnyFileId || ''}
-                        onChange={(e) => updateMaterial(materialIndex, 'bunnyFileId', e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                        placeholder="Enter Bunny File ID"
-                      />
-                    </div>
-                  </div>
-                )}
+                
               </div>
             ))
           ) : (
@@ -728,7 +699,7 @@ courseData.materials.forEach((material, materialIndex) => {
 
         <div className="space-y-6">
           {Array.isArray(courseData.lessons) && courseData.lessons.length > 0 ? (
-            courseData.lessons.map((lesson, lessonIndex) => (
+            courseData.lessons?.map((lesson, lessonIndex) => (
               <div key={lessonIndex} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-medium">Lesson {lessonIndex + 1}</h4>
@@ -812,7 +783,7 @@ courseData.materials.forEach((material, materialIndex) => {
                   ) : (
                     <div className="space-y-4">
                       {Array.isArray(lesson.chapters) &&
-                        lesson.chapters.map((chapter, chapterIndex) => (
+                        lesson.chapters?.map((chapter, chapterIndex) => (
                           <div key={chapterIndex} className="border border-gray-200 rounded-lg p-3">
                             <div className="flex items-center justify-between mb-3">
                               <h5 className="text-sm font-medium">Chapter {chapterIndex + 1}</h5>
@@ -949,7 +920,7 @@ courseData.materials.forEach((material, materialIndex) => {
           Cancel
         </button>
         <button
-          onClick={() => submitCourseWithValidation(isEdit)}
+          onClick={() => submitCourse(isEdit, courseData)}
           disabled={loading}
           className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 outline-none"
         >

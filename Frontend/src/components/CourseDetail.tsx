@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock, Users, Star, BookOpen } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Clock, Users, Star, BookOpen } from 'lucide-react';
 
-import VideoPlayer from "./student/VideoPlayer";
-import EnrollmentCard from "./student/EnrollmentCard";
-import CourseContentList from "./student/CourseContentList";
-import Toast from "./student/Toast";
+import VideoPlayer from './student/VideoPlayer';
+import EnrollmentCard from './student/EnrollmentCard';
+import CourseContentList from './student/CourseContentList';
+import Material from './student/Material';
+import Toast from './student/Toast';
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = 'http://localhost:5000/api';
 
 const CourseDetail = () => {
   const { courseId } = useParams();
@@ -25,8 +26,8 @@ const CourseDetail = () => {
   const [certificateLoading, setCertificateLoading] = useState(false);
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
     if (userData) {
       setUser({ ...JSON.parse(userData), token });
     }
@@ -40,17 +41,17 @@ const CourseDetail = () => {
   }, [user, course]);
 
   const handleDownloadCertificate = async () => {
-    if (!user || !isEnrolled) return showToast("You must be enrolled", "error");
+    if (!user?.id || !isEnrolled) return showToast('You must be enrolled', 'error');
 
     try {
-      setCertificateLoading(true); // Start loading
+      setCertificateLoading(true);
       const res = await fetch(
         `${API_BASE}/certificates/issue/${courseId}/${user.id}`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
             Authorization: `Bearer ${user.token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         }
       );
@@ -58,22 +59,22 @@ const CourseDetail = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Certificate download failed");
+        throw new Error(data?.message || 'Certificate download failed');
       }
 
-      setCertificateUrl(data.data.certificateUrl);
-      showToast("Certificate ready for download!", "success");
+      setCertificateUrl(data.data?.certificateUrl);
+      showToast('Certificate ready for download!', 'success');
 
-      window.open(data.data.certificateUrl, "_blank");
+      window.open(data.data?.certificateUrl, '_blank');
     } catch (err) {
-      console.error("Certificate error:", err);
-      showToast(err.message || "Certificate generation failed", "error");
+      console.error('Certificate error:', err);
+      showToast(err?.message || 'Certificate generation failed', 'error');
     } finally {
-      setCertificateLoading(false); // Stop loading
+      setCertificateLoading(false);
     }
   };
 
-  const showToast = (text, type = "info") => {
+  const showToast = (text, type = 'info') => {
     setToastMessage({ text, type });
     setTimeout(() => setToastMessage(null), 3000);
   };
@@ -91,7 +92,7 @@ const CourseDetail = () => {
         setCurrentVideo(data.videos[0]);
       }
     } catch (err) {
-      showToast("Failed to load course", "error");
+      showToast('Failed to load course', 'error');
     } finally {
       setLoading(false);
     }
@@ -106,34 +107,34 @@ const CourseDetail = () => {
       });
       const data = await res.json();
       const isAlreadyEnrolled = data.some(
-        (item) => item.course._id === course._id
+        (item) => item.course?._id === course?._id
       );
       setIsEnrolled(isAlreadyEnrolled);
     } catch (err) {
-      console.error("Enrollment check failed:", err);
+      console.error('Enrollment check failed:', err);
     }
   };
 
   const handleEnroll = async () => {
-    if (!user) return navigate("/auth");
+    if (!user) return navigate('/auth');
 
     try {
       setEnrollmentLoading(true);
       const res = await fetch(`${API_BASE}/enroll/${courseId}`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${user.token}`,
         },
       });
 
-      if (!res.ok) throw new Error("Failed to enroll");
+      if (!res.ok) throw new Error('Failed to enroll');
 
       setIsEnrolled(true);
-      showToast("Successfully enrolled!", "success");
+      showToast('Successfully enrolled!', 'success');
     } catch (err) {
       console.error(err);
-      showToast("Enrollment failed", "error");
+      showToast('Enrollment failed', 'error');
     } finally {
       setEnrollmentLoading(false);
     }
@@ -158,7 +159,7 @@ const CourseDetail = () => {
             Course Not Found
           </h2>
           <button
-            onClick={() => navigate("/courses")}
+            onClick={() => navigate('/courses')}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
           >
             Back to Courses
@@ -176,7 +177,7 @@ const CourseDetail = () => {
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <button
-            onClick={() => navigate("/courses")}
+            onClick={() => navigate('/courses')}
             className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
           >
             <ArrowLeft size={20} className="mr-2" />
@@ -206,11 +207,11 @@ const CourseDetail = () => {
                 </h1>
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    course.level === "beginner"
-                      ? "bg-green-100 text-green-800"
-                      : course.level === "intermediate"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
+                    course.level === 'beginner'
+                      ? 'bg-green-100 text-green-800'
+                      : course.level === 'intermediate'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
                   }`}
                 >
                   {course.level}
@@ -257,6 +258,13 @@ const CourseDetail = () => {
                 </div>
               )}
             </div>
+
+            {/* Materials Section */}
+            <Material
+              materials={course.materials}
+              isEnrolled={isEnrolled}
+              showToast={showToast}
+            />
           </div>
 
           {/* Right Sidebar */}
@@ -281,7 +289,7 @@ const CourseDetail = () => {
                   onClick={handleDownloadCertificate}
                   disabled={certificateLoading}
                   className={`w-full flex items-center justify-center bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded transition duration-150 ${
-                    certificateLoading ? "opacity-70 cursor-not-allowed" : ""
+                    certificateLoading ? 'opacity-70 cursor-not-allowed' : ''
                   }`}
                 >
                   {certificateLoading ? (

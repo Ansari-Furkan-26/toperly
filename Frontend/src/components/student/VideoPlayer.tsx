@@ -96,6 +96,7 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
 
   // 💾 PROGRESS MANAGEMENT
   const saveProgress = useCallback((immediate = false) => {
+    console.log("jkjdfhf")
     const videoElement = videoRef.current;
     if (!videoElement || !video?.title || !isEnrolled) return;
 
@@ -369,7 +370,7 @@ const AdvancedVideoPlayer = ({ video, isEnrolled, course, onEnroll, enrollmentLo
   };
 
   const handleError = (error) => {
-    setVideoState(prev => ({ ...prev, error: error.message, isLoading: false }));
+    setVideoState(prev => ({ ...prev, error: error?.message, isLoading: false }));
     
     if (showToast) {
       showToast('❌ Video playback error occurred', 'error');

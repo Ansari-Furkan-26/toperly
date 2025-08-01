@@ -85,6 +85,7 @@ const CoursesCatalog = () => {
   };
 
   const CourseCard = ({ course }) => {
+    console.log(course)
     const isWishlisted = wishlist.includes(course._id);
     const toggleWishlist = async () => {
       const endpoint = `${API_BASE}/wishlist/${course._id}`;
