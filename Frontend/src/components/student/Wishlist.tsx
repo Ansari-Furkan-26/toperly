@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Play, Star, Clock, BookOpen, Heart } from 'lucide-react';
+import VdoPlayer from '../VdoPlayer';
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -126,6 +127,7 @@ const Wishlist = () => {
           </div>
         )}
       </div>
+      <VdoPlayer videoId='ff2dabcc6615d0d2a3177bdc0e4c6312'/>
     </div>
   );
 };

@@ -75,3 +75,24 @@ export const deleteReview = async (req, res) => {
     res.status(500).json({ message: 'Error deleting review', error: err.message });
   }
 };
+
+// New function to fetch all reviews with course details
+export const getAllReviewsWithCourseDetails = async (req, res) => {
+  try {
+    const reviews = await Review.find()
+      .populate({
+        path: 'course',
+        select: 'title thumbnail.url description', // Only fetch title, thumbnail.url, and description
+      })
+      .populate('student', 'name profileImage');
+
+    if (!reviews || reviews.length === 0) {
+      return res.status(404).json({ message: 'No reviews found' });
+    }
+
+    res.status(200).json(reviews);
+  } catch (err) {
+    console.error('Error fetching all reviews:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
