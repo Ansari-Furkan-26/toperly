@@ -15,6 +15,7 @@ import {
 import EnrolledCourses from '../components/student/EnrolledCourses';
 import Course from './Course';
 import CoursesCatalog from '@/components/CoursesCatalog';
+import VdoPlayer from '@/components/VdoPlayer';
 
 export const Dashboard = () => {
   const { user } = useAuth();
@@ -207,6 +208,8 @@ export const Dashboard = () => {
         </div>
       </div>
       {/* {user.role === 'student' ? <CoursesCatalog /> : <CoursesCatalog />} */}
+      <VdoPlayer videoId="ff2dabcc6615d0d2a3177bdc0e4c6312" />
+
     </div>
   );
 };
