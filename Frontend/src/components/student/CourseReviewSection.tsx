@@ -6,7 +6,7 @@ import moment from 'moment';
 
 const API_BASE = "http://localhost:5000/api";
 
-const CourseReviewSection = ({ courseId, currentUser }) => {
+const CourseReviewSection = ({ courseId, currentUser, isEnrolled }) => {
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -86,7 +86,7 @@ const CourseReviewSection = ({ courseId, currentUser }) => {
     <div className="mt-8 border-t pt-6">
       <h2 className="text-xl font-semibold mb-4">Student Reviews</h2>
 
-      {!hasReviewed && currentUser?.role === 'student' && (
+      {!hasReviewed && currentUser?.role === 'student' && isEnrolled && (
         <div className="mb-6">
           <div className="flex items-center mb-2 gap-1">
             {[1, 2, 3, 4, 5].map(num => (

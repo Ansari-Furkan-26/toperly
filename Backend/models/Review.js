@@ -8,6 +8,4 @@ const reviewSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-reviewSchema.index({ course: 1, student: 1 }, { unique: true }); // Ensure 1 review per student per course
-
 export default mongoose.model('Review', reviewSchema);
