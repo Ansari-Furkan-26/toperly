@@ -25,6 +25,7 @@ import InstructorRoutes from "./components/InstructorRoutes";
 import QuizPage from "./components/student/QuizPage";
 import { ProfileSettings } from "./components/ProfileSettings"; 
 import { Notifications } from "./components/Notifications";
+import HelpCenter from "./components/Helpcenter";
 
 const queryClient = new QueryClient();
 
@@ -42,7 +43,7 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
       <Navbar />
       <div className="flex flex-1">
         <Sidebar user={user} logout={logout} />
-        <div className="flex-1 p-8">
+        <div className="flex-1">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
@@ -73,7 +74,8 @@ const App = () => (
             <Route path="/wishlist" element={<ProtectedLayout><StudentRoutes><Wishlist /></StudentRoutes></ProtectedLayout>} />
             <Route path="/students" element={<ProtectedLayout><InstructorRoutes><EnrolledStudents /></InstructorRoutes></ProtectedLayout>} />
             <Route path="/profile-settings" element={<ProtectedLayout><ProfileSettings /></ProtectedLayout>} />
-            <Route path="/notifications" element={<ProtectedLayout><Notifications /></ProtectedLayout>} />
+            <Route path="/notifications" element={<ProtectedLayout><Notifications /></ProtectedLayout>} />            
+            <Route path="/helpcenter" element={<ProtectedLayout><HelpCenter /></ProtectedLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

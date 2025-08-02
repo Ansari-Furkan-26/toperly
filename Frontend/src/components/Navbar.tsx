@@ -21,7 +21,7 @@ export const Navbar = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => window.open("/")}
+                onClick={() => navigate("/helpcenter")}
                 className="hover:bg-accent"
               >
                 <HelpCircle className="w-5 h-5" />
@@ -32,7 +32,7 @@ export const Navbar = () => {
             </TooltipContent>
           </Tooltip>
 
-          <Tooltip>
+          {/* <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
@@ -46,7 +46,7 @@ export const Navbar = () => {
             <TooltipContent>
               <p>Notifications</p>
             </TooltipContent>
-          </Tooltip>
+          </Tooltip> */}
 
           <Tooltip>
             <TooltipTrigger asChild>
