@@ -16,6 +16,7 @@ import reviewRoutes from './routes/reviewRoutes.js';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import https from "https";
+import axios from 'axios';
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -114,6 +115,33 @@ app.get('/unsquare-toperly/images', validateAccessKey, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch data from Bunny Storage' });
   }
 });
+
+
+// Your actual VdoCipher secret key with Apisecret prefix
+const VDOCIPHER_SECRET = 'Apisecret YQuiazweAkBEiKBbhOewcrZGQXF8daGxz4Onn6KKFvqiGnMlRskklPrRgAfYbLnS';
+
+app.get('/api/vdocipher/otp/:videoId', async (req, res) => {
+  try {
+    const { videoId } = req.params;
+
+    const response = await axios.post(
+      `https://dev.vdocipher.com/api/videos/${videoId}/otp`,
+      { ttl: 300 },
+      {
+        headers: {
+          Authorization: VDOCIPHER_SECRET,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    res.status(200).json(response.data);
+  } catch (err) {
+    console.error("OTP generation failed:", err.response?.data || err.message);
+    res.status(500).json({ message: 'Failed to generate OTP for video' });
+  }
+});
+
 
 // Routes
 app.use("/api/url", urlRouter);

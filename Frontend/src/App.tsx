@@ -10,7 +10,7 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { Dashboard } from "./pages/Dashboard";
 import CoursesCatalog from './components/CoursesCatalog';
 import CourseDetail from './components/CourseDetail';
-import Hub from "./pages/HUb";
+import Hub from "./pages/Hub";
 import NotFound from "./pages/NotFound";
 import { Sidebar } from "./components/Sidebar";
 import { Navbar } from "./components/Navbar";
@@ -61,7 +61,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/auth/login" element={<LoginPage />} />
+            <Route path="/auth" element={<LoginPage />} />
             <Route path="/auth/register" element={<RegisterPage />} />
             <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
             <Route path="/hub" element={<ProtectedLayout><StudentRoutes><Hub /></StudentRoutes></ProtectedLayout>} />
@@ -74,7 +74,7 @@ const App = () => (
             <Route path="/students" element={<ProtectedLayout><InstructorRoutes><EnrolledStudents /></InstructorRoutes></ProtectedLayout>} />
             <Route path="/profile-settings" element={<ProtectedLayout><ProfileSettings /></ProtectedLayout>} />
             <Route path="/notifications" element={<ProtectedLayout><Notifications /></ProtectedLayout>} />
-            <Route path="*" element={<ProtectedLayout><NotFound /></ProtectedLayout>} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
