@@ -50,6 +50,7 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
   const instructorLinks = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
     { name: "Course Management", icon: BookOpen, path: "/course-management" },
+    { name: "Course Review", icon: LayoutDashboard, path: "/review" },
     { name: "Students", icon: Users, path: "/students" },
   ];
 

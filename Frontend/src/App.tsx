@@ -26,6 +26,7 @@ import QuizPage from "./components/student/QuizPage";
 import { ProfileSettings } from "./components/ProfileSettings"; 
 import { Notifications } from "./components/Notifications";
 import HelpCenter from "./components/Helpcenter";
+import AdminCoursesReviews from "./components/instructor/CoursesReviews";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/courses/:courseId" element={<ProtectedLayout><StudentRoutes><CourseDetail /></StudentRoutes></ProtectedLayout>} />
             <Route path="/courses/:courseId/quiz/:quizId" element={<ProtectedLayout><StudentRoutes><QuizPage /></StudentRoutes></ProtectedLayout>} />
             <Route path="/course-management" element={<ProtectedLayout><InstructorRoutes><CourseManagementSystem /></InstructorRoutes></ProtectedLayout>} />
+            <Route path="/review" element={<ProtectedLayout><AdminCoursesReviews /></ProtectedLayout>} />
             <Route path="/enrolled-courses" element={<ProtectedLayout><StudentRoutes><EnrolledCourses /></StudentRoutes></ProtectedLayout>} />
             <Route path="/wishlist" element={<ProtectedLayout><StudentRoutes><Wishlist /></StudentRoutes></ProtectedLayout>} />
             <Route path="/students" element={<ProtectedLayout><InstructorRoutes><EnrolledStudents /></InstructorRoutes></ProtectedLayout>} />
