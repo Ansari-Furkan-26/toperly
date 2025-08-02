@@ -2,6 +2,13 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Student from '../models/Student.js';
 import Instructor from '../models/Instructor.js';
+import Course from '../models/Course.js';
+import Certificate from '../models/Certificate.js';
+import EnrolledCourse from '../models/EnrolledCourse.js';
+import QuizAttempt from '../models/QuizAttempt.js';
+import Review from '../models/Review.js';
+import Transaction from '../models/Transaction.js';
+import Wishlist from '../models/Wishlist.js';
 
 // JWT secret from env
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
@@ -137,4 +144,112 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
   // If using cookies for JWT, clear them. Otherwise, instruct client to remove locally stored token.
   res.status(200).json({ message: 'Logout successful' });
+};
+
+
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const { id, role } = req.user; // set by verifyToken middleware
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current and new passwords are required' });
+    }
+
+    let user;
+    if (role === 'student') {
+      user = await Student.findById(id);
+      if (!user) return res.status(404).json({ message: 'Student not found' });
+
+      const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+      if (!isMatch) return res.status(401).json({ message: 'Current password is incorrect' });
+
+      const hashedNew = await bcrypt.hash(newPassword, 10);
+      user.passwordHash = hashedNew;
+
+    } else if (role === 'instructor') {
+      user = await Instructor.findById(id);
+      if (!user) return res.status(404).json({ message: 'Instructor not found' });
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) return res.status(401).json({ message: 'Current password is incorrect' });
+
+      const hashedNew = await bcrypt.hash(newPassword, 10);
+      user.password = hashedNew;
+
+    } else {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
+
+    await user.save();
+    res.json({ message: 'Password changed successfully' });
+
+  } catch (err) {
+    console.error('Change password error:', err);
+    res.status(500).json({ message: 'Server error during password change' });
+  }
+};
+
+export const getUserDetails = async (req, res) => {
+  try {
+    const { id, role } = req.user;
+
+    if (role === 'student') {
+      const student = await Student.findById(id).lean();
+      if (!student) return res.status(404).json({ message: 'Student not found' });
+
+      const [
+        enrolledCourses,
+        certificates,
+        quizAttempts,
+        reviews,
+        transactions,
+        wishlist
+      ] = await Promise.all([
+        EnrolledCourse.find({ student: id }).populate('course').lean(),
+        Certificate.find({ student: id }).populate('course').lean(),
+        QuizAttempt.find({ student: id }).populate('quiz course').lean(),
+        Review.find({ student: id }).populate('course').lean(),
+        Transaction.find({ student: id }).populate('course').lean(),
+        Wishlist.find({ student: id }).populate('course').lean()
+      ]);
+
+      return res.json({
+        profile: student,
+        enrolledCourses,
+        certificates,
+        quizAttempts,
+        reviews,
+        transactions,
+        wishlist
+      });
+
+    } else if (role === 'instructor') {
+      const instructor = await Instructor.findById(id).lean();
+      if (!instructor) return res.status(404).json({ message: 'Instructor not found' });
+
+      const courses = await Course.find({ instructor: id }).lean();
+
+      const courseIds = courses.map(c => c._id);
+
+      const [reviews, certificates] = await Promise.all([
+        Review.find({ course: { $in: courseIds } }).populate('student course').lean(),
+        Certificate.find({ course: { $in: courseIds } }).lean()
+      ]);
+
+      return res.json({
+        profile: instructor,
+        courses,
+        reviews,
+        certificatesIssued: certificates
+      });
+
+    } else {
+      return res.status(400).json({ message: 'Invalid user role' });
+    }
+
+  } catch (err) {
+    console.error('getUserDetails error:', err);
+    res.status(500).json({ message: 'Server error fetching user details', error: err.message });
+  }
 };
