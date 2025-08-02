@@ -12,6 +12,7 @@ import enrollRoutes from './routes/enrollRoutes.js';
 import quizRoutes from './routes/quizRoutes.js';
 import certificateRoutes from './routes/certificateRoutes.js';
 import quizAttemptRoutes from './routes/quizAttemptRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import https from "https";
@@ -125,6 +126,7 @@ app.use('/api/enroll', enrollRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/quiz-attempts', quizAttemptRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Error Handler
 app.use(globalErrorHandler);

@@ -7,6 +7,7 @@ import EnrollmentCard from './student/EnrollmentCard';
 import CourseContentList from './student/CourseContentList';
 import Material from './student/Material';
 import Toast from './student/Toast';
+import CourseReviewSection from './student/CourseReviewSection';
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -323,6 +324,9 @@ const CourseDetail = () => {
               </div>
             )}
           </div>
+
+          <CourseReviewSection courseId={course._id} currentUser={user} />
+
         </div>
       </div>
     </div>
