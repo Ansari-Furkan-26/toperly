@@ -98,7 +98,6 @@ const App = () => (
 
             {/* Protected Routes */}
             <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
-            <Route path="/profile-settings" element={<ProtectedLayout><ProfileSettings /></ProtectedLayout>} />
             <Route path="/notifications" element={<ProtectedLayout><Notifications /></ProtectedLayout>} />
             <Route path="/helpcenter" element={<ProtectedLayout><HelpCenter /></ProtectedLayout>} />
 
@@ -125,7 +124,7 @@ const App = () => (
             <Route path="/all-students" element={<ProtectedLayout><InstructorRoutes><EnrolledStudents /></InstructorRoutes></ProtectedLayout>} />
 
             <Route path="/change-password" element={<ProtectedLayout><InstructorRoutes><ChangePassword /></InstructorRoutes></ProtectedLayout>} />
-            <Route path="/user-profile" element={<ProtectedLayout><InstructorRoutes><Profile /></InstructorRoutes></ProtectedLayout>} />
+            <Route path="/user-profile" element={<ProtectedLayout><ProfileSettings /></ProtectedLayout>} />
             <Route path="/security" element={<ProtectedLayout><InstructorRoutes><Security /></InstructorRoutes></ProtectedLayout>} />
             
             <Route path="/Instructor-helpcenter" element={<ProtectedLayout><InstructorHelpCenter /></ProtectedLayout>} />

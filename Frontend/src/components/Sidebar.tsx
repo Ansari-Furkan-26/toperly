@@ -155,17 +155,6 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
                           variant="ghost"
                           size="sm"
                           className="w-full justify-start"
-                          onClick={() => navigate("/create-course")}
-                        >
-                          <FilePlus2 className="w-4 h-4 mr-2" />
-                          Create Course
-                        </Button>
-                      </li>
-                      <li>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full justify-start"
                           onClick={() => navigate("/approvals")}
                         >
                           <CheckSquare className="w-4 h-4 mr-2" />
@@ -288,17 +277,6 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
 
                   {!collapsed && settingsOpen && (
                     <ul className="ml-6 mt-1 space-y-1 text-gray-600">
-                      <li>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full justify-start"
-                          onClick={() => navigate("/change-password")}
-                        >
-                          <LockKeyhole className="w-4 h-4 mr-2" />
-                          Change Password
-                        </Button>
-                      </li>
                       <li>
                         <Button
                           variant="ghost"

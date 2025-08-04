@@ -211,7 +211,8 @@ export const ProfileSettings = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto mt-10 space-y-6 p-6">
+    <div className="bg-gray-100 space-y-6 p-6">
+    <div className="max-w-5xl mx-auto space-y-6 p-6">
       {/* Profile Overview Card */}
       <Card>
         <CardHeader className="pb-4">
@@ -698,6 +699,7 @@ export const ProfileSettings = () => {
           </CardContent>
         </Card>
       </form>
+    </div>
     </div>
   );
 };

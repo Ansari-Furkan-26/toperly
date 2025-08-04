@@ -291,13 +291,13 @@ const MaterialsManagement = () => {
   const totalMaterials = courses.reduce((total, course) => total + course.materials.length, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
+    <div className=" max-w-5xl mx-auto">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <div className=" border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <FileText className="w-8 h-8 text-green-600 mr-3" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Materials Management</h1>
                 <p className="text-sm text-gray-500">Manage course materials and resources</p>
@@ -353,7 +353,7 @@ const MaterialsManagement = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="p-2 bg-green-100 rounded-lg">
@@ -378,7 +378,7 @@ const MaterialsManagement = () => {
             </div>
           </div>
           
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="p-2 bg-purple-100 rounded-lg">
                 <Upload className="w-6 h-6 text-purple-600" />
@@ -388,7 +388,7 @@ const MaterialsManagement = () => {
                 <p className="text-2xl font-bold text-gray-900">2.4 GB</p>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Materials List */}
@@ -474,7 +474,7 @@ const MaterialsManagement = () => {
                               >
                                 <Eye className="w-4 h-4" />
                               </button>
-                              <button
+                              {/* <button
                                 onClick={() => {
                                   const link = document.createElement('a');
                                   link.href = material.url;
@@ -485,7 +485,7 @@ const MaterialsManagement = () => {
                                 title="Download"
                               >
                                 <Download className="w-4 h-4" />
-                              </button>
+                              </button> */}
                               <button
                                 onClick={() => handleEditMaterial(material, course._id)}
                                 className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
@@ -667,6 +667,7 @@ const MaterialsManagement = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
