@@ -103,8 +103,8 @@ const AdminCoursesReviews = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-100  p-4 sm:p-6 lg:p-8">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
@@ -210,9 +210,6 @@ const AdminCoursesReviews = () => {
                       Instructor
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Students
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Rating
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -239,11 +236,7 @@ const AdminCoursesReviews = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">{course.instructor?.name || course.instructor}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {reviews[course._id]?.length || 0}
-                          </div>
-                        </td>
+                       
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex mr-2">

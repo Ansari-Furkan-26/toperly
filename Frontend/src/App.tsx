@@ -27,18 +27,27 @@ import CourseDetail from './components/CourseDetail';
 import QuizPage from "./components/student/QuizPage";
 import EnrolledCourses from "./components/student/EnrolledCourses";
 import Wishlist from "./components/student/Wishlist";
+import HelpCenter from "./components/Helpcenter";
 
 // 🎓 Instructor Components
-import CourseManagementSystem from "./pages/Course";
-import EnrolledStudents from "./pages/EnrolledStudents";
-import AdminCoursesReviews from "./components/instructor/CoursesReviews";
+import CourseManagementSystem from "./pages/Instructor/Course";
+import EnrolledStudents from "./pages/Instructor/EnrolledStudents";
+import AdminCoursesReviews from "./pages/Instructor/Reviews";
+import Approval from "./pages/Instructor/Approval"
+import Createcourse from "./pages/Instructor/Createcourse";
+import Quizz from "./pages/Instructor/Quizz";
+import Materials from "./pages/Instructor/materials";
+import ChangePassword from "./pages/Instructor/ChangePassword";
+import Profile from "./pages/Instructor/Profile";
+import Security from "./pages/Instructor/Security";
+import InstructorHelpCenter from "./pages/Instructor/InstructorHelpcenter";
 
 // ⚙️ Common Pages
 import { ProfileSettings } from "./components/ProfileSettings";
 import { Notifications } from "./components/Notifications";
-import HelpCenter from "./components/Helpcenter";
 import AboutPage from "./components/AboutPage";
 import { StudentDashboard } from "./pages/StudentDashboard";
+
 
 const queryClient = new QueryClient();
 
@@ -56,14 +65,14 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   const isStudent = user.role === "student";
 
   return (
-    <div className={`min-h-screen bg-gradient-subtle ${!isStudent ? 'ml-64' : ''} flex flex-col`}>
+    <div className={`min-h-screen bg-gradient-subtle flex flex-col`}>
         {/* Show Navbar only for students */}
       {isStudent && <Navbar />}
       <div className="flex flex-1">
         {/* Sidebar only for non-students */}
         {!isStudent && <Sidebar user={user} logout={logout} />}
         <div className="flex-1">
-          <div className="">
+          <div className=" mx-auto">
             {children}
           </div>
         </div>
@@ -99,13 +108,27 @@ const App = () => (
             <Route path="/courses/:courseId/quiz/:quizId" element={<ProtectedLayout><StudentRoutes><QuizPage /></StudentRoutes></ProtectedLayout>} />
             <Route path="/enrolled-courses" element={<ProtectedLayout><StudentRoutes><EnrolledCourses /></StudentRoutes></ProtectedLayout>} />
             <Route path="/wishlist" element={<ProtectedLayout><StudentRoutes><Wishlist /></StudentRoutes></ProtectedLayout>} />
-
-            {/* Instructor Routes */}
-            <Route path="/course-management" element={<ProtectedLayout><InstructorRoutes><CourseManagementSystem /></InstructorRoutes></ProtectedLayout>} />
-            <Route path="/students" element={<ProtectedLayout><InstructorRoutes><EnrolledStudents /></InstructorRoutes></ProtectedLayout>} />
-            <Route path="/review" element={<ProtectedLayout><InstructorRoutes><AdminCoursesReviews /></InstructorRoutes></ProtectedLayout>} />
+       
             <Route path="/about" element={<ProtectedLayout><AboutPage/></ProtectedLayout>}/>
             <Route path="/profile" element={<ProtectedLayout><StudentDashboard/></ProtectedLayout>}/>
+
+            {/* Instructor Routes */}            
+            <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
+            <Route path="/all-courses" element={<ProtectedLayout><InstructorRoutes><CourseManagementSystem /></InstructorRoutes></ProtectedLayout>} />
+            <Route path="/create-course" element={<ProtectedLayout><InstructorRoutes><Createcourse /></InstructorRoutes></ProtectedLayout>} />
+            <Route path="/approvals" element={<ProtectedLayout><InstructorRoutes><Approval /></InstructorRoutes></ProtectedLayout>} />
+            
+            <Route path="/all-quizzes" element={<ProtectedLayout><InstructorRoutes><Quizz /></InstructorRoutes></ProtectedLayout>} />
+            <Route path="/materials" element={<ProtectedLayout><InstructorRoutes><Materials /></InstructorRoutes></ProtectedLayout>} />
+
+            <Route path="/reviews-feedback" element={<ProtectedLayout><InstructorRoutes><AdminCoursesReviews /></InstructorRoutes></ProtectedLayout>} />
+            <Route path="/all-students" element={<ProtectedLayout><InstructorRoutes><EnrolledStudents /></InstructorRoutes></ProtectedLayout>} />
+
+            <Route path="/change-password" element={<ProtectedLayout><InstructorRoutes><ChangePassword /></InstructorRoutes></ProtectedLayout>} />
+            <Route path="/user-profile" element={<ProtectedLayout><InstructorRoutes><Profile /></InstructorRoutes></ProtectedLayout>} />
+            <Route path="/security" element={<ProtectedLayout><InstructorRoutes><Security /></InstructorRoutes></ProtectedLayout>} />
+            
+            <Route path="/Instructor-helpcenter" element={<ProtectedLayout><InstructorHelpCenter /></ProtectedLayout>} />
 
             {/* Fallback Route */}
             <Route path="*" element={<NotFound />} />

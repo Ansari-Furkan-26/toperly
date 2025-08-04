@@ -57,7 +57,7 @@ const EnrolledStudents = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-slate-600 font-medium">Loading student analytics...</p>
@@ -67,9 +67,10 @@ const EnrolledStudents = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gray-100">
+    <div className="max-w-5xl mx-auto">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 shadow-sm">
+      <div className=" border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             <div>
@@ -77,14 +78,6 @@ const EnrolledStudents = () => {
               <p className="text-slate-600 mt-1">Monitor student progress and course performance</p>
             </div>
             <div className="flex items-center space-x-3">
-              {/* <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                <Download className="w-4 h-4" />
-                <span>Export Data</span>
-              </button>
-              <button className="flex items-center space-x-2 bg-slate-100 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors">
-                <BarChart3 className="w-4 h-4" />
-                <span>Analytics</span>
-              </button> */}
             </div>
           </div>
         </div>
@@ -219,6 +212,7 @@ const EnrolledStudents = () => {
           <StudentTable data={filteredData} />
         )}
       </div>
+    </div>
     </div>
   );
 };
