@@ -56,10 +56,10 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
 
   const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { name: "All Courses", path: "/all-courses", icon: FolderOpen },
+    { name: "My Courses", path: "/all-courses", icon: FolderOpen },
     { name: "Create Course", path: "/create-course", icon: FilePlus2 },
     { name: "Approvals", path: "/approvals", icon: CheckSquare },
-    { name: "All Quizzes", path: "/all-quizzes", icon: GraduationCap },
+    { name: "Quizzes", path: "/all-quizzes", icon: GraduationCap },
     // { name: "Create Quiz", path: "/create-quiz", icon: FilePlus2 },
     { name: "Materials", path: "/materials", icon: BookOpen },
     { name: "Reviews & Feedback", path: "/reviews-feedback", icon: Users },
@@ -147,7 +147,7 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
                           onClick={() => navigate("/all-courses")}
                         >
                           <FolderOpen className="w-4 h-4 mr-2" />
-                          All Courses
+                          My Courses
                         </Button>
                       </li>
                       <li>
@@ -214,7 +214,7 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
                           onClick={() => navigate("/all-quizzes")}
                         >
                           <FileQuestion className="w-4 h-4 mr-2" />
-                          All Quizzes
+                          Quizzes
                         </Button>
                       </li>
                       <li>

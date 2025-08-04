@@ -105,7 +105,7 @@ const CourseManagementSystem = () => {
           duration: course.duration || 0,
           tags: '',
           lessons: course.videos?.length > 0
-            ? course.videos.map((video) => ({
+            ? course?.videos?.map((video) => ({
                 name: video.title || '',
                 description: video.description || '',
                 video: null,
@@ -114,7 +114,7 @@ const CourseManagementSystem = () => {
                 duration: video.duration || 0,
                 order: video.order || 0,
                 chapters: video.chapters?.length > 0
-                  ? video.chapters.map((chapter) => ({
+                  ? video?.chapters?.map((chapter) => ({
                       title: chapter.title || '',
                       startTime: {
                         hours: chapter.startTime?.hours ?? 0,
@@ -140,7 +140,7 @@ const CourseManagementSystem = () => {
                 chapters: [],
               }],
           materials: course.materials?.length > 0
-            ? course.materials.map((mat) => ({
+            ? course?.materials?.map((mat) => ({
                 title: mat.title || '',
                 filename: mat?.filename || '',
                 url: mat.url || '',

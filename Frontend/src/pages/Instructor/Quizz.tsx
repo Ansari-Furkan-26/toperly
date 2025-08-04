@@ -1,8 +1,10 @@
-import React from 'react'
+import QuizManagement from './QuizManagement'
 
 function Quizz() {
   return (
-    <div>Quizz</div>
+    <div>
+      <QuizManagement/>
+    </div>
   )
 }
 
