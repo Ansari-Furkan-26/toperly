@@ -270,8 +270,7 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-lg mb-2 truncate">{course.title}</h3>
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-          {course.description}
+        <p className="text-gray-600 text-sm mb-3 line-clamp-1" dangerouslySetInnerHTML={{__html: course.description}}>
         </p>
         <div className="flex items-center gap-2 mb-3">
           <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
@@ -396,8 +395,7 @@ const CourseDashboard: FC<CourseDashboardProps> = ({
               <div className="lg:col-span-2">
                 <div className="mb-6">
                   <h3 className="text-xl font-semibold mb-3">Description</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {course.description}
+                  <p className="text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{__html: course.description}}>
                   </p>
                 </div>
 
