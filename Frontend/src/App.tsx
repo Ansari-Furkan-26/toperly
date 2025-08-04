@@ -37,6 +37,8 @@ import AdminCoursesReviews from "./components/instructor/CoursesReviews";
 import { ProfileSettings } from "./components/ProfileSettings";
 import { Notifications } from "./components/Notifications";
 import HelpCenter from "./components/Helpcenter";
+import AboutPage from "./components/AboutPage";
+import { StudentDashboard } from "./pages/StudentDashboard";
 
 const queryClient = new QueryClient();
 
@@ -61,7 +63,7 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
         {/* Sidebar only for non-students */}
         {!isStudent && <Sidebar user={user} logout={logout} />}
         <div className="flex-1">
-          <div className="max-w-7xl mx-auto">
+          <div className="">
             {children}
           </div>
         </div>
@@ -102,6 +104,8 @@ const App = () => (
             <Route path="/course-management" element={<ProtectedLayout><InstructorRoutes><CourseManagementSystem /></InstructorRoutes></ProtectedLayout>} />
             <Route path="/students" element={<ProtectedLayout><InstructorRoutes><EnrolledStudents /></InstructorRoutes></ProtectedLayout>} />
             <Route path="/review" element={<ProtectedLayout><InstructorRoutes><AdminCoursesReviews /></InstructorRoutes></ProtectedLayout>} />
+            <Route path="/about" element={<ProtectedLayout><AboutPage/></ProtectedLayout>}/>
+            <Route path="/profile" element={<ProtectedLayout><StudentDashboard/></ProtectedLayout>}/>
 
             {/* Fallback Route */}
             <Route path="*" element={<NotFound />} />

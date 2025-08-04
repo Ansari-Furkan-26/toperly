@@ -253,3 +253,7 @@ export const getUserDetails = async (req, res) => {
     res.status(500).json({ message: 'Server error fetching user details', error: err.message });
   }
 };
+
+export const updateUserInfo = async (req, res) => {
+  
+}

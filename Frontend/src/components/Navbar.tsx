@@ -6,6 +6,7 @@ import {
   Heart,
   BookOpen,
   LogOut,
+  GalleryHorizontalEnd,
 } from "lucide-react";
 import {
   Tooltip,
@@ -37,7 +38,7 @@ export const Navbar = () => {
         {/* <div className="text-lg font-semibold truncate">
           Welcome, {user?.name}
         </div> */}
-        <a href="/courses"><img src="/logo.png" alt="logo" className="w-40" /></a>
+        <a href="/dashboard"><img src="/logo.png" alt="logo" className="w-40" /></a>
 
         {/* Right Action Icons */}
         <div className="flex items-center space-x-4">
@@ -108,7 +109,7 @@ export const Navbar = () => {
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => navigate("/profile-settings")}>
+              <DropdownMenuItem onClick={() => navigate("/profile")}>
                 <User className="w-4 h-4 mr-2" />
                 Profile
               </DropdownMenuItem>

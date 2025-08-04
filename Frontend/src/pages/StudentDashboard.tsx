@@ -28,11 +28,12 @@ import {
   Target,
   Clock
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const StudentDashboard = () => {
   const [data, setData] = useState<any>(null);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     fetch("http://localhost:5000/api/auth/me", {
       headers: {
@@ -152,10 +153,11 @@ export const StudentDashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8 bg-gray-50 min-h-screen">
+    <div className="max-w-7xl mx-auto p-6 space-y-8 min-h-screen">
       {/* Header */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
           <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
             <User className="w-8 h-8 text-gray-600" />
           </div>
@@ -164,6 +166,10 @@ export const StudentDashboard = () => {
               Welcome back, {data.profile?.name || 'Student'}!
             </h1>
             <p className="text-gray-600 mt-1">Continue your learning journey and track your progress</p>
+          </div>
+          </div>
+          <div>
+            <button className="w-full bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 active:bg-gray-700 transition-all duration-200 font-medium text-sm transform hover:scale-[1.02] active:scale-[0.98] px-4" onClick={() => {navigate('/profile-settings')}}>Edit Profile</button>
           </div>
         </div>
       </div>

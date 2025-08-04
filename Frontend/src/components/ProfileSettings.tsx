@@ -93,7 +93,7 @@ export const ProfileSettings = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto mt-10 space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Profile Settings</CardTitle>
