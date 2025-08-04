@@ -1,21 +1,83 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { Bell, HelpCircle, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  HelpCircle,
+  User,
+  Heart,
+  BookOpen,
+  LogOut,
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export const Navbar = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/auth");
+  };
 
   return (
     <nav className="bg-card border-b shadow-sm p-4">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <span className="text-lg font-semibold">Welcome, {user?.name}</span>
-        </div>
-        
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-4">
+        {/* Welcome Message */}
+        {/* <div className="text-lg font-semibold truncate">
+          Welcome, {user?.name}
+        </div> */}
+        <a href="/courses"><img src="/logo.png" alt="logo" className="w-40" /></a>
+
+        {/* Right Action Icons */}
         <div className="flex items-center space-x-4">
+          
+          {/* Enrolled Courses */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/enrolled-courses")}
+                className="hover:bg-accent"
+              >
+                <BookOpen className="w-5 h-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Enrolled Courses</p>
+            </TooltipContent>
+          </Tooltip>
+
+          {/* Wishlist */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/wishlist")}
+                className="hover:bg-accent"
+              >
+                <Heart className="w-5 h-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Wishlist</p>
+            </TooltipContent>
+          </Tooltip>
+
+
+          {/* Help Center */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -32,37 +94,30 @@ export const Navbar = () => {
             </TooltipContent>
           </Tooltip>
 
-          {/* <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/notifications")}
-                className="hover:bg-accent"
-              >
-                <Bell className="w-5 h-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Notifications</p>
-            </TooltipContent>
-          </Tooltip> */}
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/profile-settings")}
-                className="hover:bg-accent"
-              >
-                <User className="w-5 h-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Profile Settings</p>
-            </TooltipContent>
-          </Tooltip>
+          {/* Profile Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="w-8 h-8 cursor-pointer">
+                <AvatarFallback className="bg-primary text-white text-sm">
+                  {user?.name
+                    ?.split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate("/profile-settings")}>
+                <User className="w-4 h-4 mr-2" />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </nav>

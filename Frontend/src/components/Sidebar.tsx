@@ -1,4 +1,3 @@
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -6,13 +5,7 @@ import {
   GraduationCap,
   LogOut,
   BookOpen,
-  DollarSign,
-  Upload,
   Users,
-  Star,
-  Heart,
-  Award,
-  Settings,
   LayoutDashboard,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -54,27 +47,11 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
     { name: "Students", icon: Users, path: "/students" },
   ];
 
-  const studentLinks = [
-    { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-    { name: "All Courses", icon: BookOpen, path: "/courses" },
-    { name: "Enrolled Courses", icon: BookOpen, path: "/enrolled-courses" },
-    { name: "Wishlist", icon: Heart, path: "/wishlist" },
-  ];
-
-  const navLinks = user.role === "instructor" ? instructorLinks : studentLinks;
-
   return (
     <aside className="fixed inset-y-0 left-0 w-64 bg-card shadow-card border-r flex flex-col">
       <div className="flex flex-col h-full">
-        <div className="p-6 border-b">
-          <div className="flex items-center space-x-3">
-            <div className="bg-gradient-primary px-2 rounded-lg">
-              <GraduationCap className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              EduPlatform
-            </h1>
-          </div>
+        <div className="py-4 border-b">
+            <img src="/logo.png" alt="logo" className="w-40"/>
         </div>
         <div className="flex-grow p-6">
           <div className="flex flex-col items-center space-y-4">
@@ -86,17 +63,14 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
             <div className="text-center">
               <span className="font-medium text-lg">{user.name}</span>
               <div className="mt-2">
-                <Badge
-                  variant={user.role === "instructor" ? "default" : "secondary"}
-                  className="text-sm"
-                >
-                  {user.role}
+                <Badge variant="default" className="text-sm">
+                  Instructor
                 </Badge>
               </div>
             </div>
             <nav className="mt-6 w-full">
               <ul className="space-y-2">
-                {navLinks.map((link) => (
+                {instructorLinks.map((link) => (
                   <li key={link.name}>
                     <Button
                       variant={
