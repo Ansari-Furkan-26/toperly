@@ -565,140 +565,6 @@ const LessonsForm = ({
                   </div>
                 )}
               </div>
-              {/* <div className="mt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-semibold text-gray-700">Chapters</h4>
-                  <button
-                    type="button"
-                    onClick={() => addChapter(lessonIndex)}
-                    className="flex items-center px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 outline-none"
-                  >
-                    <Plus size={14} className="mr-1" />
-                    Add Chapter
-                  </button>
-                </div>
-                {Array.isArray(lesson.chapters) && lesson.chapters.length === 0 ? (
-                  <p className="text-sm text-gray-500">No chapters added yet.</p>
-                ) : (
-                  <div className="space-y-4">
-                    {Array.isArray(lesson.chapters) &&
-                      lesson.chapters.map((chapter, chapterIndex) => (
-                        <div key={chapterIndex} className="border border-gray-200 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-3">
-                            <h5 className="text-sm font-medium text-gray-700">Chapter {chapterIndex + 1}</h5>
-                            <button
-                              type="button"
-                              onClick={() => removeChapter(lessonIndex, chapterIndex)}
-                              className="flex items-center px-2 py-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors focus:ring-2 focus:ring-red-500 focus:ring-offset-2 outline-none"
-                            >
-                              <Trash2 size={12} className="mr-1" />
-                              Remove
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                            <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">Chapter Title *</label>
-                              <input
-                                type="text"
-                                value={chapter.title}
-                                onChange={(e) => updateChapter(lessonIndex, chapterIndex, "title", e.target.value)}
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition ${
-                                  errors[`lesson_${lessonIndex}_chapter_${chapterIndex}_title`] ? "border-red-300 bg-red-50" : "border-gray-300 hover:border-gray-400"
-                                }`}
-                                placeholder="Enter chapter title"
-                              />
-                              {errors[`lesson_${lessonIndex}_chapter_${chapterIndex}_title`] && (
-                                <p className="text-red-600 text-xs mt-1">{errors[`lesson_${lessonIndex}_chapter_${chapterIndex}_title`]}</p>
-                              )}
-                            </div>
-                            <div className="grid grid-cols-3 gap-2">
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Start Time (Hours)</label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={chapter.startTime.hours}
-                                  onChange={(e) => updateChapter(lessonIndex, chapterIndex, "startTime.hours", e.target.value)}
-                                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition hover:border-gray-400"
-                                  placeholder="0"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Minutes</label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="59"
-                                  value={chapter.startTime.minutes}
-                                  onChange={(e) => updateChapter(lessonIndex, chapterIndex, "startTime.minutes", e.target.value)}
-                                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition hover:border-gray-400"
-                                  placeholder="0"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Seconds</label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="59"
-                                  value={chapter.startTime.seconds}
-                                  onChange={(e) => updateChapter(lessonIndex, chapterIndex, "startTime.seconds", e.target.value)}
-                                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition hover:border-gray-400"
-                                  placeholder="0"
-                                />
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-3 gap-2">
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">End Time (Hours)</label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={chapter.endTime.hours}
-                                  onChange={(e) => updateChapter(lessonIndex, chapterIndex, "endTime.hours", e.target.value)}
-                                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition hover:border-gray-400"
-                                  placeholder="0"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Minutes</label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="59"
-                                  value={chapter.endTime.minutes}
-                                  onChange={(e) => updateChapter(lessonIndex, chapterIndex, "endTime.minutes", e.target.value)}
-                                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition hover:border-gray-400"
-                                  placeholder="0"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Seconds</label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="59"
-                                  value={chapter.endTime.seconds}
-                                  onChange={(e) => updateChapter(lessonIndex, chapterIndex, "endTime.seconds", e.target.value)}
-                                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition hover:border-gray-400"
-                                  placeholder="0"
-                                />
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              {errors[`lesson_${lessonIndex}_chapter_${chapterIndex}_endTime`] && (
-                                <p className="text-red-600 text-xs mt-1">{errors[`lesson_${lessonIndex}_chapter_${chapterIndex}_endTime`]}</p>
-                              )}
-                              {errors[`lesson_${lessonIndex}_chapter_${chapterIndex}_overlap`] && (
-                                <p className="text-red-600 text-xs mt-1">{errors[`lesson_${lessonIndex}_chapter_${chapterIndex}_overlap`]}</p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                )}
-              </div> */}
             </div>
           ))
         ) : (
@@ -950,13 +816,13 @@ const CourseForm = ({
         handleCancelEdit={handleCancelEdit}
       />
       <div className="max-w-5xl mx-auto ml-5">
-        {/* <button
+        <button
           onClick={() => setShowLessons(!showLessons)}
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 outline-none"
         >
           <Plus size={16} className="mr-2" />
           {showLessons ? "Hide Lessons" : "Add Lessons"}
-        </button> */}
+        </button>
       </div>
       {showLessons && (
         <LessonsForm

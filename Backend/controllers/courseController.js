@@ -295,15 +295,14 @@ export const addChapterToVideo = async (req, res) => {
 
     const course = await Course.findById(id);
     if (!course) return res.status(404).json({ message: 'Course not found' });
-
-    const video = course.videos.find(v => v.bunnyFileId === videoId);
+    console.log(course.videos)
+    const video = course.videos.find(v => v._id == videoId);
     if (!video) return res.status(404).json({ message: 'Video not found' });
 
     const chapter = { title, startTime, endTime };
     video.chapters.push(chapter);
     course.updatedAt = new Date();
     await course.save();
-
     res.status(201).json({ message: 'Chapter added successfully', chapters: video.chapters });
   } catch (err) {
     console.error('Add chapter error:', err);
