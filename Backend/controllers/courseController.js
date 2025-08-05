@@ -422,3 +422,27 @@ export const deleteChapter = async (req, res) => {
   }
 };
 
+export const updateCourseStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['pending', 'approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    course.isPublished = status;
+    course.updatedAt = new Date();
+    await course.save();
+
+    res.status(200).json({ message: `Course status updated to '${status}'`, course });
+  } catch (error) {
+    console.error('Error updating course status:', error);
+    res.status(500).json({ message: 'Server error updating course status' });
+  }
+};

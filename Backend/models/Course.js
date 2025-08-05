@@ -39,7 +39,11 @@ const courseSchema = new mongoose.Schema({
     bunnyFileId: String,
     type: { type: String, enum: ['pdf', 'image', 'document'] }
   }],
-  isPublished: { type: Boolean, default: false },
+  isPublished: {
+  type: String,
+  enum: ['pending', 'approved', 'rejected'],
+  default: 'pending',
+},
   rating: { type: Number, default: 0, min: 0, max: 5 },
   totalReviews: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },

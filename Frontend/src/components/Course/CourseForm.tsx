@@ -422,7 +422,7 @@ const LessonsForm = ({
               </div>
 
                {/* Minimal Chapters Section */}
-              <div className="bg-gray-50 rounded-lg p-4">
+              {/* <div className="bg-gray-50 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     <Clock size={16} className="text-gray-500 mr-2" />
@@ -470,7 +470,7 @@ const LessonsForm = ({
                           </div>
 
                           <div className="grid grid-cols-2 gap-4">
-                            {/* Start Time */}
+                            
                             <div>
                               <label className="block text-xs font-medium text-gray-600 mb-2">Start Time</label>
                               <div className="flex items-center space-x-2">
@@ -506,7 +506,7 @@ const LessonsForm = ({
                               </div>
                             </div>
 
-                            {/* End Time */}
+                            
                             <div>
                               <label className="block text-xs font-medium text-gray-600 mb-2">End Time</label>
                               <div className="flex items-center space-x-2">
@@ -543,7 +543,7 @@ const LessonsForm = ({
                             </div>
                           </div>
 
-                          {/* Error Messages */}
+                         
                           {(errors[`lesson_${lessonIndex}_chapter_${chapterIndex}_endTime`] || 
                             errors[`lesson_${lessonIndex}_chapter_${chapterIndex}_overlap`]) && (
                             <div className="mt-2 text-xs text-red-600">
@@ -556,15 +556,12 @@ const LessonsForm = ({
                             </div>
                           )}
 
-                          {/* Duration Display */}
-                          {/* <div className="mt-2 text-xs text-gray-500">
-                            Duration: {formatTime(chapter.startTime)} - {formatTime(chapter.endTime)}
-                          </div> */}
+                          
                         </div>
                       ))}
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
           ))
         ) : (
