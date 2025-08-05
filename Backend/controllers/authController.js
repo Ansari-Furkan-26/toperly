@@ -100,17 +100,23 @@ export const login = async (req, res) => {
     if (!email || !password || !role) {
       return res.status(400).json({ message: 'Email, password and role are required' });
     }
+
     if (!['student', 'instructor'].includes(role)) {
       return res.status(400).json({ message: 'Role must be either "student" or "instructor"' });
     }
 
     let user;
+
     if (role === 'instructor') {
       user = await Instructor.findOne({ email });
       if (!user) return res.status(404).json({ message: 'Instructor not found' });
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+
+      if (user.isSuspended) {
+        return res.status(403).json({ message: 'Your account has been suspended. Contact support.' });
+      }
 
     } else {
       // student
@@ -119,10 +125,14 @@ export const login = async (req, res) => {
 
       const isMatch = await bcrypt.compare(password, user.passwordHash);
       if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+
+      if (user.isSuspended) {
+        return res.status(403).json({ message: 'Your account has been suspended. Contact support.' });
+      }
     }
 
     const token = generateToken(user);
-    console.log(token);
+
     return res.json({
       message: 'Login successful',
       user: {
@@ -139,6 +149,7 @@ export const login = async (req, res) => {
     return res.status(500).json({ message: 'Server error during login' });
   }
 };
+
 
 // logout handler
 export const logout = async (req, res) => {

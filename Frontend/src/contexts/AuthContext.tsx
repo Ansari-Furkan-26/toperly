@@ -48,31 +48,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (userJson) setUser(JSON.parse(userJson));
   }, []);
 
-  const login = async (email: string, password: string, role: 'student' | 'instructor'): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role }),
-      });
-      const data = await response.json();
-      if (response.ok && data.user && data.token) {
-        setUser(data.user);
-        setToken(data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);
-        return true;
-      } else {
-        throw new Error(data.message || 'Login failed');
-      }
-    } catch (error) {
-      console.error('Login failed', error);
-      return false;
-    } finally {
-      setIsLoading(false);
+  const login = async (
+  email: string,
+  password: string,
+  role: 'student' | 'instructor'
+): Promise<boolean> => {
+  setIsLoading(true);
+  try {
+    const response = await fetch(`${API_BASE}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, role }),
+    });
+    const data = await response.json();
+
+    if (response.ok && data.user && data.token) {
+      setUser(data.user);
+      setToken(data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
+      return true;
+    } else {
+      throw new Error(data.message || 'Login failed');
     }
-  };
+  } catch (error: any) {
+    throw new Error(error.message || 'Login failed');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const register = async (data: RegisterData): Promise<boolean> => {
     setIsLoading(true);

@@ -47,6 +47,11 @@ import { ProfileSettings } from "./components/ProfileSettings";
 import { Notifications } from "./components/Notifications";
 import AboutPage from "./components/AboutPage";
 import { StudentDashboard } from "./pages/StudentDashboard";
+import AdminCoupons from "./pages/Admin/AdminCoupons";
+import AdminRevenueTracker from "./pages/Admin/AdminRevenueTracker";
+import AdminRealTimeAnalytics from "./pages/Admin/AdminRealTimeAnalytics";
+import AdminCourseApprovalList from "./pages/Admin/AdminCourseApprovalList";
+import AdminUserManagement from "./pages/Admin/AdminUserManagement";
 
 
 const queryClient = new QueryClient();
@@ -128,6 +133,11 @@ const App = () => (
             <Route path="/security" element={<ProtectedLayout><InstructorRoutes><Security /></InstructorRoutes></ProtectedLayout>} />
             
             <Route path="/Instructor-helpcenter" element={<ProtectedLayout><InstructorHelpCenter /></ProtectedLayout>} />
+            <Route path="/admin/coupons" element={<ProtectedLayout><AdminCoupons /></ProtectedLayout>} />
+            <Route path="/admin/revenue" element={<ProtectedLayout><AdminRevenueTracker /></ProtectedLayout>} />
+            <Route path="/admin/analytics" element={<ProtectedLayout><AdminRealTimeAnalytics /></ProtectedLayout>} />
+            <Route path="/admin/approvals" element={<ProtectedLayout><AdminCourseApprovalList /></ProtectedLayout>} />
+            <Route path="/admin/user-management" element={<ProtectedLayout><AdminUserManagement /></ProtectedLayout>} />
 
             {/* Fallback Route */}
             <Route path="*" element={<NotFound />} />

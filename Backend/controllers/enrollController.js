@@ -20,6 +20,25 @@ export const enrollStudent = async (req, res) => {
   }
 };
 
+export const getAllEnrollments = async (req, res) => {
+  try {
+    const enrollments = await EnrolledCourse.find()
+      .populate({
+        path: 'student',
+        select: 'name email' // select relevant student fields
+      })
+      .populate({
+        path: 'course',
+        select: 'title price'
+      });
+
+    res.status(200).json(enrollments);
+  } catch (err) {
+    console.error("Error fetching enrollments:", err);
+    res.status(500).json({ message: "Failed to fetch enrollments" });
+  }
+};
+
 
 export const getMyEnrolledCourses = async (req, res) => {
   try {

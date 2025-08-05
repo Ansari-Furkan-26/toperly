@@ -13,6 +13,8 @@ import quizRoutes from './routes/quizRoutes.js';
 import certificateRoutes from './routes/certificateRoutes.js';
 import quizAttemptRoutes from './routes/quizAttemptRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
+import couponRoutes from './routes/couponRoutes.js';
+import userAdminRoutes from "./routes/userAdminRoutes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import https from "https";
@@ -21,6 +23,13 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { uploadBufferToIPFS } from "./utils/uploadToIPFS.js";
+import { verifyToken } from "./middlewares/auth.middleware.js";
+import Student from "./models/Student.js";
+import Instructor from "./models/Instructor.js";
+import EnrolledCourse from "./models/EnrolledCourse.js";
+import Certificate from "./models/Certificate.js";
+import Quiz from "./models/Quiz.js";
+import Review from "./models/Review.js";
 
 // Load environment variables
 dotenv.config({ path: "./.env" });
@@ -142,6 +151,29 @@ app.get('/api/vdocipher/otp/:videoId', async (req, res) => {
   }
 });
 
+app.get('/api', verifyToken, async (req, res) => {
+  try {
+    const students = await Student.find();
+    const instructors = await Instructor.find();
+    const enrollments = await EnrolledCourse.find();
+    const certificates = await Certificate.find();
+    const quizzes = await Quiz.find();
+    const reviews = await Review.find();
+
+    res.json({
+      students,
+      instructors,
+      enrollments,
+      certificates,
+      quizzes,
+      reviews
+    })
+  } catch (error) {
+    console.log(error);
+    res.json({message: "error while fetching all the data"});
+  }
+})
+
 
 // Routes
 app.use("/api/url", urlRouter);
@@ -155,6 +187,8 @@ app.use('/api/quizzes', quizRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/quiz-attempts', quizAttemptRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/coupons', couponRoutes);
+app.use("/api/admin", userAdminRoutes);
 
 // Error Handler
 app.use(globalErrorHandler);

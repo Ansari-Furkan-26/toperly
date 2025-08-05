@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -16,8 +28,8 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const { login, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [role, setRole] = useState<'student' | 'instructor'>('student');
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [role, setRole] = useState<"student" | "instructor">("student");
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,21 +60,28 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
           title: "Login Successful!",
           description: `Welcome back! You are logged in as a ${role}.`,
         });
-        setFormData({ email: '', password: '' });
-        setRole('student');
-        navigate('/dashboard'); // Redirect to dashboard on successful login
+        setFormData({ email: "", password: "" });
+        setRole("student");
+        navigate("/dashboard"); // Redirect to dashboard on successful login
         onSuccess?.();
       } else {
         toast({
           title: "Login Failed",
-          description: "Invalid credentials or an error occurred. Please try again.",
+          description:
+            "Invalid credentials or an error occurred. Please try again.",
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.");
+
       toast({
-        title: "Login Error",
-        description: error instanceof Error ? error.message : "An unexpected error occurred.",
+        title: "Login Failed",
+        description: message,
         variant: "destructive",
       });
     }
@@ -87,7 +106,9 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
               type="email"
               placeholder="Enter your email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
               required
               className="transition-smooth"
             />
@@ -100,7 +121,9 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
               type="password"
               placeholder="Enter your password"
               value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
               required
               className="transition-smooth"
             />
@@ -108,7 +131,12 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="role">Role *</Label>
-            <Select value={role} onValueChange={(value) => setRole(value as 'student' | 'instructor')}>
+            <Select
+              value={role}
+              onValueChange={(value) =>
+                setRole(value as "student" | "instructor")
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
@@ -124,13 +152,13 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
             className="w-full bg-gradient-primary hover:opacity-90 transition-smooth"
             disabled={isLoading}
           >
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoading ? "Logging in..." : "Login"}
           </Button>
           <div className="text-center text-sm text-muted-foreground">
             <p>
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <button
-                onClick={() => navigate('/auth/register')}
+                onClick={() => navigate("/auth/register")}
                 className="text-primary hover:underline font-medium transition-smooth"
               >
                 Sign up

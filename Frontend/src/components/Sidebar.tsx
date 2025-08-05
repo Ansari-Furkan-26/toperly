@@ -316,6 +316,61 @@ export const Sidebar = ({ user, logout }: SidebarProps) => {
                   {!collapsed && <span className="ml-2 text-sm">Help Center</span>}
                 </Button>
               </li>
+              <li>
+                <Button
+                  variant={location.pathname === "/admin/coupons" ? "secondary" : "ghost"}
+                  size="sm"
+                  className={`w-full justify-start ${collapsed ? "justify-center px-0" : ""}`}
+                  onClick={() => navigate("/admin/coupons")}
+                >
+                  <LifeBuoy className="w-4 h-4" />
+                  {!collapsed && <span className="ml-2 text-sm">Coupons (Admin)</span>}
+                </Button>
+              </li>
+              <li>
+                <Button
+                  variant={location.pathname === "/admin/revenue" ? "secondary" : "ghost"}
+                  size="sm"
+                  className={`w-full justify-start ${collapsed ? "justify-center px-0" : ""}`}
+                  onClick={() => navigate("/admin/revenue")}
+                >
+                  <LifeBuoy className="w-4 h-4" />
+                  {!collapsed && <span className="ml-2 text-sm">Revenue (Admin)</span>}
+                </Button>
+              </li>
+              <li>
+                <Button
+                  variant={location.pathname === "/admin/analytics" ? "secondary" : "ghost"}
+                  size="sm"
+                  className={`w-full justify-start ${collapsed ? "justify-center px-0" : ""}`}
+                  onClick={() => navigate("/admin/analytics")}
+                >
+                  <LifeBuoy className="w-4 h-4" />
+                  {!collapsed && <span className="ml-2 text-sm">Analytics (Admin)</span>}
+                </Button>
+              </li>
+              <li>
+                <Button
+                  variant={location.pathname === "/admin/approvals" ? "secondary" : "ghost"}
+                  size="sm"
+                  className={`w-full justify-start ${collapsed ? "justify-center px-0" : ""}`}
+                  onClick={() => navigate("/admin/approvals")}
+                >
+                  <LifeBuoy className="w-4 h-4" />
+                  {!collapsed && <span className="ml-2 text-sm">Approvals (Admin)</span>}
+                </Button>
+              </li>
+              <li>
+                <Button
+                  variant={location.pathname === "/admin/user-management" ? "secondary" : "ghost"}
+                  size="sm"
+                  className={`w-full justify-start ${collapsed ? "justify-center px-0" : ""}`}
+                  onClick={() => navigate("/admin/user-management")}
+                >
+                  <LifeBuoy className="w-4 h-4" />
+                  {!collapsed && <span className="ml-2 text-sm">User Management (Admin)</span>}
+                </Button>
+              </li>
             </ul>
           </nav>
         </div>

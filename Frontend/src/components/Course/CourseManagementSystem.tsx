@@ -472,6 +472,7 @@ const CourseManagementSystem: FC = () => {
       console.error('Error deleting course:', error);
       showToast('Error deleting course', 'error');
     } finally {
+      window.location.href = "/all-courses"
       setLoading(false);
     }
   };
@@ -621,6 +622,7 @@ const submitCourse = async (isEdit: boolean) => {
       });
     }
   }
+  window.location.href = "/all-courses"
 }
 
 };
