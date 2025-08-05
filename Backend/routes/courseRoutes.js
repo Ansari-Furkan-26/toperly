@@ -13,7 +13,9 @@ import {
   addMaterialToCourse,
   addChapterToVideo,
   updateChapter,
-  deleteChapter
+  deleteChapter,
+  updateVideoInCourse,
+  deleteVideoFromCourse
 } from '../controllers/courseController.js';
 import { verifyToken, isInstructor } from '../middlewares/auth.middleware.js';
 
@@ -26,6 +28,8 @@ router.get('/:id', getCourseById);
 router.get('/instructor/myCourses', verifyToken, isInstructor, getInstructorsCourses);
 router.put('/:id', verifyToken, isInstructor, updateCourse);
 router.post('/:id/videos', verifyToken, isInstructor, addVideoToCourse);
+router.put('/:id/videos/:videoId', verifyToken, isInstructor, updateVideoInCourse);
+router.delete('/:id/videos/:videoId', verifyToken, isInstructor, deleteVideoFromCourse);
 router.post('/:id/thumbnail', verifyToken, isInstructor, addThumbnailToCourse);
 router.delete('/:id', verifyToken, isInstructor, deleteCourse);
 router.post('/:id/materials', verifyToken, isInstructor, addMaterialToCourse);

@@ -594,6 +594,8 @@ const CourseForm = ({
   handleVideoUpload,
   handleMaterialUpload,
   updateLesson,
+  addLesson,
+  removeLesson,
   submitCourse,
 }) => {
   const [showLessons, setShowLessons] = useState(false);
@@ -640,35 +642,35 @@ const CourseForm = ({
   }
 
   // Add new lesson
-  const addLesson = () => {
-    const newLesson = {
-      name: "",
-      description: "",
-      video: null,
-      videoUrl: "",
-      bunnyFileId: "",
-      order: (courseData.lessons.length || 0) + 1,
-      chapters: [
-        {
-          title: "",
-          startTime: { hours: 0, minutes: 0, seconds: 0 },
-          endTime: { hours: 0, minutes: 0, seconds: 0 },
-        },
-      ],
-    };
-    setCourseData({
-      ...courseData,
-      lessons: Array.isArray(courseData.lessons) ? [...courseData.lessons, newLesson] : [newLesson],
-    });
-  };
+  // const addLesson = () => {
+  //   const newLesson = {
+  //     name: "",
+  //     description: "",
+  //     video: null,
+  //     videoUrl: "",
+  //     bunnyFileId: "",
+  //     order: (courseData.lessons.length || 0) + 1,
+  //     chapters: [
+  //       {
+  //         title: "",
+  //         startTime: { hours: 0, minutes: 0, seconds: 0 },
+  //         endTime: { hours: 0, minutes: 0, seconds: 0 },
+  //       },
+  //     ],
+  //   };
+  //   setCourseData({
+  //     ...courseData,
+  //     lessons: Array.isArray(courseData.lessons) ? [...courseData.lessons, newLesson] : [newLesson],
+  //   });
+  // };
 
-  // Remove lesson
-  const removeLesson = (index: number) => {
-    if (Array.isArray(courseData.lessons) && courseData.lessons.length > 1) {
-      const updatedLessons = courseData.lessons.filter((_, i) => i !== index);
-      setCourseData({ ...courseData, lessons: updatedLessons });
-    }
-  };
+  // // Remove lesson
+  // const removeLesson = (index: number) => {
+  //   if (Array.isArray(courseData.lessons) && courseData.lessons.length > 1) {
+  //     const updatedLessons = courseData.lessons.filter((_, i) => i !== index);
+  //     setCourseData({ ...courseData, lessons: updatedLessons });
+  //   }
+  // };
 
   // Add new chapter to a lesson
   const addChapter = (lessonIndex: number) => {

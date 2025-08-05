@@ -345,12 +345,21 @@ const CourseManagementSystem: FC = () => {
     });
   };
 
-  const removeLesson = (index: number) => {
-    if (courseData.lessons.length > 1) {
-      const updatedLessons = courseData.lessons.filter((_, i) => i !== index);
-      setCourseData({ ...courseData, lessons: updatedLessons });
-    }
-  };
+  const removeLesson = async (index: number) => {
+  const lessonToDelete = courseData.lessons[index];
+  console.log(lessonToDelete)
+
+  if (lessonToDelete._id) {
+    const confirmed = window.confirm('Do you really want to delete this lesson?');
+    if (!confirmed) return;
+
+    await deleteLessonFromServer(editingCourse._id, lessonToDelete._id);
+  }
+
+  const updatedLessons = courseData.lessons.filter((_, i) => i !== index);
+  setCourseData({ ...courseData, lessons: updatedLessons });
+};
+
 
   const addChapter = (lessonIndex: number) => {
     const newChapter = {
@@ -467,6 +476,59 @@ const CourseManagementSystem: FC = () => {
     }
   };
 
+  const updateLessonOnServer = async (courseId: string, lesson: any) => {
+  if (!lesson._id) return;
+
+  try {
+    const response = await fetch(`${API_BASE}/courses/${courseId}/videos/${lesson._id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+      body: JSON.stringify({
+        title: lesson.name,
+        description: lesson.description,
+        order: lesson.order,
+        chapters: lesson.chapters,
+        duration: 0, // you can calculate or allow input if needed
+      }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || 'Failed to update video');
+    }
+
+    showToast(`Lesson "${lesson.name}" updated successfully`, 'success');
+  } catch (err) {
+    console.error('Update video error:', err);
+    showToast(`Error updating lesson: ${lesson.name}`, 'error');
+  }
+};
+
+const deleteLessonFromServer = async (courseId: string, videoId: string) => {
+  try {
+    const response = await fetch(`${API_BASE}/courses/${courseId}/videos/${videoId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || 'Failed to delete video');
+    }
+
+    showToast('Lesson deleted successfully', 'success');
+  } catch (err) {
+    console.error('Delete video error:', err);
+    showToast('Error deleting lesson', 'error');
+  }
+};
+
+
 const submitCourse = async (isEdit: boolean) => {
   // ...validation as before, but skip materials/quizzes!
   // Prepare course creation payload (no materials or quizzes)
@@ -515,6 +577,52 @@ const submitCourse = async (isEdit: boolean) => {
   // Loop over lessons in courseData.lessons and create or update via API.
 
   // Done! No materials/quizzes logic present.
+
+
+  if (courseData.thumbnail) {
+      await fetch(`${API_BASE}/courses/${courseId}/thumbnail`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify(courseData.thumbnail),
+      });
+    }
+
+    if (isEdit && editingCourse) {
+  // Loop over lessons
+  for (let i = 0; i < courseData.lessons.length; i++) {
+    const lesson = courseData.lessons[i];
+
+    // If lesson._id exists and user changed content => update
+    if (lesson._id) {
+      await updateLessonOnServer(editingCourse._id, lesson);
+    }
+
+    // If lesson doesn't have an _id => it's a new one, add via POST
+    else if (lesson.name.trim() && lesson.videoUrl && lesson.video) {
+      await fetch(`${API_BASE}/courses/${editingCourse._id}/videos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        body: JSON.stringify({
+          title: lesson.name,
+          description: lesson.description,
+          filename: lesson.video?.name || `lesson_${i + 1}.mp4`,
+          url: lesson.videoUrl,
+          bunnyFileId: lesson.bunnyFileId || `video_${Date.now()}_${i}`,
+          duration: 0,
+          order: lesson.order || i + 1,
+          chapters: lesson.chapters || [],
+        }),
+      });
+    }
+  }
+}
+
 };
 
 

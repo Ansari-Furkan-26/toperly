@@ -116,14 +116,14 @@ export const updateCourse = async (req, res) => {
 
 export const addVideoToCourse = async (req, res) => {
   try {
-    const { title, filename, url, bunnyFileId, duration, order, chapters } = req.body;
+    const { title, description, filename, url, bunnyFileId, duration, order, chapters } = req.body;
     const course = await Course.findById(req.params.id);
 
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
 
-    course.videos.push({ title, filename, url, bunnyFileId, duration, order, chapters: chapters || [] });
+    course.videos.push({ title,description, filename, url, bunnyFileId, duration, order, chapters: chapters || [] });
     course.updatedAt = new Date();
     await course.save();
 
@@ -133,6 +133,65 @@ export const addVideoToCourse = async (req, res) => {
     res.status(500).json({ message: 'Server error adding video to course' });
   }
 };
+
+export const updateVideoInCourse = async (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const { title, description, order, chapters, duration } = req.body;
+
+    const course = await Course.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    const video = course.videos.id(videoId);
+    if (!video) {
+      return res.status(404).json({ message: 'Video not found in course' });
+    }
+
+    if (title) video.title = title;
+    if (description) video.description = description;
+    if (order !== undefined) video.order = order;
+    if (chapters) video.chapters = chapters;
+    if (duration !== undefined) video.duration = duration;
+
+    course.updatedAt = new Date();
+    await course.save();
+
+    res.json({ message: 'Video updated successfully', course });
+  } catch (error) {
+    console.error('Update video error:', error);
+    res.status(500).json({ message: 'Server error updating video in course' });
+  }
+};
+
+export const deleteVideoFromCourse = async (req, res) => {
+  try {
+    const { id, videoId } = req.params;
+
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Filter out the video with the matching ID
+    const initialLength = course.videos.length;
+    course.videos = course.videos.filter((video) => video._id.toString() !== videoId);
+
+    if (course.videos.length === initialLength) {
+      return res.status(404).json({ message: 'Video not found in course' });
+    }
+
+    course.updatedAt = new Date();
+    await course.save();
+
+    res.json({ message: 'Video deleted successfully', course });
+  } catch (error) {
+    console.error('Delete video error:', error);
+    res.status(500).json({ message: 'Server error deleting video from course' });
+  }
+};
+
 
 export const addThumbnailToCourse = async (req, res) => {
   try {
