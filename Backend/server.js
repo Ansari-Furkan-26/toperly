@@ -51,23 +51,20 @@ app.use('/temp', express.static(path.join(__dirname, 'public/temp')));
 const allowedOrigins = [
   'http://localhost:8080',
   'http://localhost:8081',
-  'https://toperly-unsquare-dashboard.netlify.app',
-  'https://toperly-unsquare.netlify.app'
+  'https://toperly-unsquare.netlify.app',
+  'https://toperly-dashboard-unsquare.netlify.app'
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin, like mobile apps or curl
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
     } else {
-      return callback(new Error('Not allowed by CORS'), false);
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
 }));
-
 app.options('*', cors());
 
 // Middleware
