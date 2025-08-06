@@ -51,7 +51,8 @@ app.use('/temp', express.static(path.join(__dirname, 'public/temp')));
 const allowedOrigins = [
   'http://localhost:8080',
   'http://localhost:8081',
-  'https://toperly-unsquare-dashboard.netlify.app'
+  'https://toperly-unsquare-dashboard.netlify.app',
+  'https://toperly-unsquare.netlify.app/'
 ];
 
 app.use(cors({
