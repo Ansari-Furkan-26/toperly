@@ -15,6 +15,7 @@ import quizAttemptRoutes from './routes/quizAttemptRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
 import userAdminRoutes from "./routes/userAdminRoutes.js";
+import blogRoutes from "./routes/blogRoutes.js"
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import https from "https";
@@ -30,7 +31,8 @@ import EnrolledCourse from "./models/EnrolledCourse.js";
 import Certificate from "./models/Certificate.js";
 import Quiz from "./models/Quiz.js";
 import Review from "./models/Review.js";
-
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
 // Load environment variables
 dotenv.config({ path: "./.env" });
 
@@ -48,6 +50,7 @@ const __dirname = path.dirname(__filename);
 app.use('/temp', express.static(path.join(__dirname, 'public/temp')));
 const allowedOrigins = [
   'http://localhost:8080',
+  'http://localhost:8081',
   'https://toperly-unsquare-dashboard.netlify.app'
 ];
 
@@ -69,6 +72,203 @@ app.use(express.json({ limit: "20mb" }));
 app.use(urlencoded({ extended: true, limit: "20mb" }));
 app.use(cookieParser());
 app.use(express.static("public"));
+
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+app.get('/', (req, res) => {
+    res.json({ message: 'Razorpay Payment Server is running!' });
+});
+
+// Create order endpoint
+app.post('/api/payment/create-order', async (req, res) => {
+    try {
+        const { amount, currency = 'INR', courseId, courseName, userEmail } = req.body;
+
+        if (!amount || !courseId || !courseName || !userEmail) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields: amount, courseId, courseName, userEmail'
+            });
+        }
+
+        const options = {
+            amount: amount * 100, // Razorpay expects amount in paisa
+            currency: currency,
+            receipt: `course_${courseId}_${Date.now()}`,
+            notes: {
+                courseId: courseId,
+                courseName: courseName,
+                userEmail: userEmail
+            }
+        };
+
+        const order = await razorpay.orders.create(options);
+
+        res.json({
+            success: true,
+            order: {
+                id: order.id,
+                amount: order.amount,
+                currency: order.currency,
+                receipt: order.receipt,
+                status: order.status,
+                created_at: order.created_at
+            },
+            key_id: process.env.RAZORPAY_KEY_ID
+        });
+
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to create order',
+            error: error.message
+        });
+    }
+});
+
+// Verify payment endpoint
+app.post('/api/payment/verify', async (req, res) => {
+    try {
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+            courseId,
+            userEmail
+        } = req.body;
+
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing payment verification parameters'
+            });
+        }
+
+        // Create signature for verification
+        const body = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSignature = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+            .update(body.toString())
+            .digest("hex");
+
+        const isAuthentic = expectedSignature === razorpay_signature;
+
+        if (isAuthentic) {
+            // Payment is verified successfully
+            // Here you would typically:
+            // 1. Update your database to mark the course as purchased
+            // 2. Send confirmation email
+            // 3. Grant access to the course
+
+            res.json({
+                success: true,
+                message: 'Payment verified successfully',
+                paymentDetails: {
+                    orderId: razorpay_order_id,
+                    paymentId: razorpay_payment_id,
+                    courseId: courseId,
+                    userEmail: userEmail
+                }
+            });
+
+            // Log successful payment (you can store this in database)
+            console.log('Payment verified successfully:', {
+                orderId: razorpay_order_id,
+                paymentId: razorpay_payment_id,
+                courseId: courseId,
+                userEmail: userEmail,
+                timestamp: new Date().toISOString()
+            });
+
+        } else {
+            res.status(400).json({
+                success: false,
+                message: 'Invalid payment signature'
+            });
+        }
+
+    } catch (error) {
+        console.error('Error verifying payment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Payment verification failed',
+            error: error.message
+        });
+    }
+});
+
+// Get payment details endpoint
+app.get('/api/payment/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        const payment = await razorpay.payments.fetch(paymentId);
+
+        res.json({
+            success: true,
+            payment: {
+                id: payment.id,
+                amount: payment.amount,
+                currency: payment.currency,
+                status: payment.status,
+                order_id: payment.order_id,
+                method: payment.method,
+                created_at: payment.created_at,
+                notes: payment.notes
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching payment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch payment details',
+            error: error.message
+        });
+    }
+});
+
+// Webhook endpoint for Razorpay events
+app.post('/api/webhook/razorpay', (req, res) => {
+    try {
+        const webhookSignature = req.headers['x-razorpay-signature'];
+        const webhookBody = JSON.stringify(req.body);
+        
+        const expectedSignature = crypto
+            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+            .update(webhookBody)
+            .digest('hex');
+
+        if (webhookSignature === expectedSignature) {
+            const event = req.body;
+            
+            // Handle different webhook events
+            switch (event.event) {
+                case 'payment.captured':
+                    console.log('Payment captured:', event.payload.payment.entity);
+                    // Handle successful payment
+                    break;
+                case 'payment.failed':
+                    console.log('Payment failed:', event.payload.payment.entity);
+                    // Handle failed payment
+                    break;
+                default:
+                    console.log('Unhandled webhook event:', event.event);
+            }
+
+            res.status(200).json({ success: true });
+        } else {
+            res.status(400).json({ success: false, message: 'Invalid webhook signature' });
+        }
+
+    } catch (error) {
+        console.error('Webhook error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
 // Middleware to validate AccessKey
 const validateAccessKey = (req, res, next) => {
@@ -189,6 +389,7 @@ app.use('/api/quiz-attempts', quizAttemptRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use("/api/admin", userAdminRoutes);
+app.use('/api/blogs', blogRoutes);
 
 // Error Handler
 app.use(globalErrorHandler);
@@ -203,6 +404,8 @@ process.on("unhandledRejection", (err) => {
   console.error("Unhandled Rejection:", err.message);
   process.exit(1);
 });
+
+
 
 const PORT = process.env.PORT || 5000;
 
