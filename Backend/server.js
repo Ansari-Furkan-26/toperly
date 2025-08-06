@@ -52,7 +52,7 @@ const allowedOrigins = [
   'http://localhost:8080',
   'http://localhost:8081',
   'https://toperly-unsquare-dashboard.netlify.app',
-  'https://toperly-unsquare.netlify.app/'
+  'https://toperly-unsquare.netlify.app'
 ];
 
 app.use(cors({
@@ -67,6 +67,8 @@ app.use(cors({
   },
   credentials: true
 }));
+
+app.options('*', cors());
 
 // Middleware
 app.use(express.json({ limit: "20mb" }));
