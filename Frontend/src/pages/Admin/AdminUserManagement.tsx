@@ -51,16 +51,25 @@ const AdminUserManagement = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const res = await axios.get("http://localhost:5000/api/admin/users", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      
-      const studentData = res.data.students.map((s: any) => ({ ...s, role: "student" }));
-      const instructorData = res.data.instructors.map((i: any) => ({ ...i, role: "instructor" }));
-      
+
+      const res = await axios.get(
+        "https://toperly.onrender.com/api/admin/users",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const studentData = res.data.students.map((s: any) => ({
+        ...s,
+        role: "student",
+      }));
+      const instructorData = res.data.instructors.map((i: any) => ({
+        ...i,
+        role: "instructor",
+      }));
+
       setStudents(studentData);
       setInstructors(instructorData);
     } catch (err) {
@@ -76,21 +85,22 @@ const AdminUserManagement = () => {
 
     // Apply role filter
     if (filters.role !== "all") {
-      allUsers = allUsers.filter(user => user.role === filters.role);
+      allUsers = allUsers.filter((user) => user.role === filters.role);
     }
 
     // Apply status filter
     if (filters.status !== "all") {
-      allUsers = allUsers.filter(user => 
+      allUsers = allUsers.filter((user) =>
         filters.status === "active" ? !user.isSuspended : user.isSuspended
       );
     }
 
     // Apply search filter
     if (searchQuery.trim()) {
-      allUsers = allUsers.filter(user =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      allUsers = allUsers.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -107,15 +117,19 @@ const AdminUserManagement = () => {
       setActionLoading(user._id);
       setError(null);
 
-      await axios.put("http://localhost:5000/api/admin/user/suspend", {
-        userId: user._id,
-        userType: user.role,
-        isSuspended: !user.isSuspended,
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      await axios.put(
+        "https://toperly.onrender.com/api/admin/user/suspend",
+        {
+          userId: user._id,
+          userType: user.role,
+          isSuspended: !user.isSuspended,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
       // Update UI
       if (user.role === "student") {
@@ -152,30 +166,38 @@ const AdminUserManagement = () => {
       setActionLoading("bulk");
       setError(null);
 
-      const promises = Array.from(selectedUsers).map(userId => {
-        const user = filteredUsers.find(u => u._id === userId);
+      const promises = Array.from(selectedUsers).map((userId) => {
+        const user = filteredUsers.find((u) => u._id === userId);
         if (!user) return Promise.resolve();
 
-        return axios.put("http://localhost:5000/api/admin/user/suspend", {
-          userId: user._id,
-          userType: user.role,
-          isSuspended: suspend,
-        }, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        return axios.put(
+          "https://toperly.onrender.com/api/admin/user/suspend",
+          {
+            userId: user._id,
+            userType: user.role,
+            isSuspended: suspend,
           },
-        });
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
       });
 
       await Promise.all(promises);
 
       // Update UI
-      setStudents(prev => prev.map(s => 
-        selectedUsers.has(s._id) ? { ...s, isSuspended: suspend } : s
-      ));
-      setInstructors(prev => prev.map(i => 
-        selectedUsers.has(i._id) ? { ...i, isSuspended: suspend } : i
-      ));
+      setStudents((prev) =>
+        prev.map((s) =>
+          selectedUsers.has(s._id) ? { ...s, isSuspended: suspend } : s
+        )
+      );
+      setInstructors((prev) =>
+        prev.map((i) =>
+          selectedUsers.has(i._id) ? { ...i, isSuspended: suspend } : i
+        )
+      );
 
       setSelectedUsers(new Set());
       setSuccessMessage(`Successfully ${action}ed ${selectedUsers.size} users`);
@@ -202,7 +224,7 @@ const AdminUserManagement = () => {
     if (selectedUsers.size === filteredUsers.length) {
       setSelectedUsers(new Set());
     } else {
-      setSelectedUsers(new Set(filteredUsers.map(user => user._id)));
+      setSelectedUsers(new Set(filteredUsers.map((user) => user._id)));
     }
   };
 
@@ -226,11 +248,13 @@ const AdminUserManagement = () => {
   const getRoleBadge = (role: string) => {
     const isInstructor = role === "instructor";
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-        isInstructor 
-          ? "bg-purple-100 text-purple-800" 
-          : "bg-blue-100 text-blue-800"
-      }`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          isInstructor
+            ? "bg-purple-100 text-purple-800"
+            : "bg-blue-100 text-blue-800"
+        }`}
+      >
         {isInstructor ? "📚 Instructor" : "🎓 Student"}
       </span>
     );
@@ -253,7 +277,9 @@ const AdminUserManagement = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600 mt-2">Manage students and instructors across your platform</p>
+          <p className="text-gray-600 mt-2">
+            Manage students and instructors across your platform
+          </p>
         </div>
 
         {/* Stats Cards */}
@@ -261,20 +287,28 @@ const AdminUserManagement = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Total Students</p>
-                <p className="text-2xl font-bold text-blue-600">{students.length}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Students
+                </p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {students.length}
+                </p>
               </div>
               <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
                 <span className="text-blue-600 text-xl">🎓</span>
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Total Instructors</p>
-                <p className="text-2xl font-bold text-purple-600">{instructors.length}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Instructors
+                </p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {instructors.length}
+                </p>
               </div>
               <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
                 <span className="text-purple-600 text-xl">📚</span>
@@ -285,9 +319,14 @@ const AdminUserManagement = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Active Users</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Active Users
+                </p>
                 <p className="text-2xl font-bold text-green-600">
-                  {[...students, ...instructors].filter(u => !u.isSuspended).length}
+                  {
+                    [...students, ...instructors].filter((u) => !u.isSuspended)
+                      .length
+                  }
                 </p>
               </div>
               <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -301,7 +340,10 @@ const AdminUserManagement = () => {
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-600">Suspended</p>
                 <p className="text-2xl font-bold text-red-600">
-                  {[...students, ...instructors].filter(u => u.isSuspended).length}
+                  {
+                    [...students, ...instructors].filter((u) => u.isSuspended)
+                      .length
+                  }
                 </p>
               </div>
               <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -316,8 +358,16 @@ const AdminUserManagement = () => {
           <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div className="ml-3">
@@ -329,8 +379,16 @@ const AdminUserManagement = () => {
                   className="text-red-400 hover:text-red-600"
                 >
                   <span className="sr-only">Dismiss</span>
-                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
               </div>
@@ -342,8 +400,16 @@ const AdminUserManagement = () => {
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <svg
+                  className="h-5 w-5 text-green-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div className="ml-3">
@@ -360,8 +426,18 @@ const AdminUserManagement = () => {
             <div className="flex-1 max-w-md">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  <svg
+                    className="h-5 w-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
                   </svg>
                 </div>
                 <input
@@ -378,7 +454,12 @@ const AdminUserManagement = () => {
             <div className="flex space-x-4">
               <select
                 value={filters.role}
-                onChange={(e) => setFilters(prev => ({ ...prev, role: e.target.value as any }))}
+                onChange={(e) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    role: e.target.value as any,
+                  }))
+                }
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Roles</option>
@@ -388,7 +469,12 @@ const AdminUserManagement = () => {
 
               <select
                 value={filters.status}
-                onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value as any }))}
+                onChange={(e) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    status: e.target.value as any,
+                  }))
+                }
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
@@ -400,8 +486,18 @@ const AdminUserManagement = () => {
                 onClick={fetchUsers}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
               >
-                <svg className="h-4 w-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <svg
+                  className="h-4 w-4 inline mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
                 </svg>
                 Refresh
               </button>
@@ -415,7 +511,8 @@ const AdminUserManagement = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <p className="text-sm text-blue-800">
-                  <span className="font-medium">{selectedUsers.size}</span> users selected
+                  <span className="font-medium">{selectedUsers.size}</span>{" "}
+                  users selected
                 </p>
               </div>
               <div className="flex space-x-2">
@@ -424,14 +521,18 @@ const AdminUserManagement = () => {
                   disabled={actionLoading === "bulk"}
                   className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {actionLoading === "bulk" ? "Processing..." : "Suspend Selected"}
+                  {actionLoading === "bulk"
+                    ? "Processing..."
+                    : "Suspend Selected"}
                 </button>
                 <button
                   onClick={() => handleBulkSuspension(false)}
                   disabled={actionLoading === "bulk"}
                   className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {actionLoading === "bulk" ? "Processing..." : "Unsuspend Selected"}
+                  {actionLoading === "bulk"
+                    ? "Processing..."
+                    : "Unsuspend Selected"}
                 </button>
                 <button
                   onClick={() => setSelectedUsers(new Set())}
@@ -455,7 +556,10 @@ const AdminUserManagement = () => {
                 <label className="flex items-center text-sm text-gray-600">
                   <input
                     type="checkbox"
-                    checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
+                    checked={
+                      selectedUsers.size === filteredUsers.length &&
+                      filteredUsers.length > 0
+                    }
                     onChange={handleSelectAll}
                     className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
@@ -491,7 +595,10 @@ const AdminUserManagement = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                  <tr
+                    key={user._id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         type="checkbox"
@@ -508,8 +615,12 @@ const AdminUserManagement = () => {
                           </div>
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                          <div className="text-sm text-gray-500">ID: {user._id.slice(-6)}</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {user.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            ID: {user._id.slice(-6)}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -535,9 +646,24 @@ const AdminUserManagement = () => {
                         >
                           {actionLoading === user._id ? (
                             <>
-                              <svg className="animate-spin -ml-1 mr-2 h-3 w-3" fill="none" viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25"></circle>
-                                <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" className="opacity-75"></path>
+                              <svg
+                                className="animate-spin -ml-1 mr-2 h-3 w-3"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                  className="opacity-25"
+                                ></circle>
+                                <path
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                  className="opacity-75"
+                                ></path>
                               </svg>
                               Processing
                             </>
@@ -547,7 +673,7 @@ const AdminUserManagement = () => {
                             </>
                           )}
                         </button>
-                        
+
                         <button className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors">
                           👁️ View Details
                         </button>
@@ -559,11 +685,23 @@ const AdminUserManagement = () => {
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center">
                       <div className="text-gray-500">
-                        <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400 mb-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                          />
                         </svg>
                         <p className="text-lg font-medium">No users found</p>
-                        <p className="text-sm">Try adjusting your search or filter criteria</p>
+                        <p className="text-sm">
+                          Try adjusting your search or filter criteria
+                        </p>
                       </div>
                     </td>
                   </tr>
@@ -575,7 +713,10 @@ const AdminUserManagement = () => {
 
         {/* Footer */}
         <div className="mt-8 text-center text-gray-500 text-sm">
-          <p>Total: {filteredUsers.length} users displayed • Last updated: {new Date().toLocaleTimeString()}</p>
+          <p>
+            Total: {filteredUsers.length} users displayed • Last updated:{" "}
+            {new Date().toLocaleTimeString()}
+          </p>
         </div>
       </div>
     </div>

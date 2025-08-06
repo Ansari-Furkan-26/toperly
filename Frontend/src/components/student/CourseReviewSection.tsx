@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { Star, User } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext'; // Your helper
-import moment from 'moment';
+import React, { useEffect, useState } from "react";
+import { Star, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext"; // Your helper
+import moment from "moment";
 
-
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://toperly.onrender.com/api";
 
 const CourseReviewSection = ({ courseId, currentUser, isEnrolled }) => {
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [hasReviewed, setHasReviewed] = useState(false);
   const [loading, setLoading] = useState(false);
-  const {token} = useAuth();
+  const { token } = useAuth();
 
   const fetchReviews = async () => {
     try {
@@ -21,39 +20,39 @@ const CourseReviewSection = ({ courseId, currentUser, isEnrolled }) => {
       setReviews(data);
 
       if (currentUser) {
-        const reviewed = data.find(r => r.student._id === currentUser.id);
+        const reviewed = data.find((r) => r.student._id === currentUser.id);
         setHasReviewed(!!reviewed);
       }
     } catch (err) {
-      console.error('Error fetching reviews:', err);
+      console.error("Error fetching reviews:", err);
     }
   };
 
   const handleSubmit = async () => {
-    if (!rating) return alert('Please select a rating');
+    if (!rating) return alert("Please select a rating");
 
     try {
       setLoading(true);
       const res = await fetch(`${API_BASE}/reviews/${courseId}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ rating, comment })
+        body: JSON.stringify({ rating, comment }),
       });
 
       const result = await res.json();
       if (res.ok) {
         setRating(0);
-        setComment('');
+        setComment("");
         setHasReviewed(true);
         fetchReviews();
       } else {
         alert(result.message);
       }
     } catch (err) {
-      alert('Error submitting review');
+      alert("Error submitting review");
     } finally {
       setLoading(false);
     }
@@ -62,19 +61,19 @@ const CourseReviewSection = ({ courseId, currentUser, isEnrolled }) => {
   const handleDelete = async (reviewId) => {
     try {
       const res = await fetch(`${API_BASE}/reviews/${courseId}/${reviewId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (res.ok) {
         fetchReviews();
         setHasReviewed(false);
       } else {
-        alert('Failed to delete review');
+        alert("Failed to delete review");
       }
     } catch (err) {
-      alert('Error deleting review');
+      alert("Error deleting review");
     }
   };
 
@@ -86,14 +85,16 @@ const CourseReviewSection = ({ courseId, currentUser, isEnrolled }) => {
     <div className="mt-8 border-t pt-6">
       <h2 className="text-xl font-semibold mb-4">Student Reviews</h2>
 
-      {!hasReviewed && currentUser?.role === 'student' && isEnrolled && (
+      {!hasReviewed && currentUser?.role === "student" && isEnrolled && (
         <div className="mb-6">
           <div className="flex items-center mb-2 gap-1">
-            {[1, 2, 3, 4, 5].map(num => (
+            {[1, 2, 3, 4, 5].map((num) => (
               <Star
                 key={num}
                 size={20}
-                className={`cursor-pointer ${num <= rating ? 'text-yellow-500' : 'text-gray-300'}`}
+                className={`cursor-pointer ${
+                  num <= rating ? "text-yellow-500" : "text-gray-300"
+                }`}
                 onClick={() => setRating(num)}
               />
             ))}
@@ -110,7 +111,7 @@ const CourseReviewSection = ({ courseId, currentUser, isEnrolled }) => {
             onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? 'Submitting...' : 'Submit Review'}
+            {loading ? "Submitting..." : "Submit Review"}
           </button>
         </div>
       )}
@@ -134,11 +135,13 @@ const CourseReviewSection = ({ courseId, currentUser, isEnrolled }) => {
                 </div>
               </div>
               <div className="flex gap-1 mb-1">
-                {[1, 2, 3, 4, 5].map(num => (
+                {[1, 2, 3, 4, 5].map((num) => (
                   <Star
                     key={num}
                     size={16}
-                    className={num <= review.rating ? 'text-yellow-500' : 'text-gray-300'}
+                    className={
+                      num <= review.rating ? "text-yellow-500" : "text-gray-300"
+                    }
                   />
                 ))}
               </div>

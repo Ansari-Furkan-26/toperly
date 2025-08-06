@@ -41,7 +41,7 @@ const TopPick: React.FC = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const navigate = useNavigate();
   const { user, token } = useAuth();
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = "https://toperly.onrender.com/api";
 
   useEffect(() => {
     fetchTopPick();
@@ -60,7 +60,7 @@ const TopPick: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        
+
         if (data.length > 0) {
           // Select the first course or you can add logic to select featured course
           // You could also add a featured flag to your course model
@@ -86,7 +86,9 @@ const TopPick: React.FC = () => {
       });
       if (res.ok) {
         const wishlistData = await res.json();
-        setIsWishlisted(wishlistData.some((course: any) => course._id === topCourse._id));
+        setIsWishlisted(
+          wishlistData.some((course: any) => course._id === topCourse._id)
+        );
       }
     } catch (error) {
       console.error("Error checking wishlist:", error);
@@ -95,7 +97,7 @@ const TopPick: React.FC = () => {
 
   const toggleWishlist = async () => {
     if (!user?.id) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -109,7 +111,7 @@ const TopPick: React.FC = () => {
         method,
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -127,7 +129,7 @@ const TopPick: React.FC = () => {
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    const month = date.toLocaleDateString('en-US', { month: 'long' });
+    const month = date.toLocaleDateString("en-US", { month: "long" });
     const year = date.getFullYear();
     return `Updated ${month} ${year}`;
   };
@@ -141,11 +143,14 @@ const TopPick: React.FC = () => {
       originalPrice: Math.floor(course.price * 1.8), // 80% discount
       isPremium: Math.random() > 0.5,
       isBestseller: Math.random() > 0.3,
-      enrolledCount: course.enrolledCount || Math.floor(Math.random() * 50000) + 5000,
+      enrolledCount:
+        course.enrolledCount || Math.floor(Math.random() * 50000) + 5000,
       instructorTitle: "Developer and Lead Instructor",
-      enhancedDescription: course.description || `Master ${course.category} with this comprehensive course. Learn from industry experts and build real-world projects that will enhance your portfolio and career prospects.`
+      enhancedDescription:
+        course.description ||
+        `Master ${course.category} with this comprehensive course. Learn from industry experts and build real-world projects that will enhance your portfolio and career prospects.`,
     };
-    
+
     return staticData;
   };
 
@@ -207,14 +212,18 @@ const TopPick: React.FC = () => {
                   />
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-black/20" />
-                  
+
                   {/* Play Button */}
-                  <button 
+                  <button
                     onClick={() => navigate(`/courses/${topCourse._id}`)}
                     className="absolute inset-0 flex items-center justify-center group"
                   >
                     <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white/30 transition-all duration-300 group-hover:scale-110">
-                      <Play className="text-white ml-1" size={24} fill="currentColor" />
+                      <Play
+                        className="text-white ml-1"
+                        size={24}
+                        fill="currentColor"
+                      />
                     </div>
                   </button>
                 </div>
@@ -222,7 +231,7 @@ const TopPick: React.FC = () => {
                 <div className="aspect-video lg:aspect-auto lg:h-80 bg-gradient-to-br from-purple-600 via-purple-700 to-orange-500 relative overflow-hidden">
                   {/* Background Pattern */}
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-600/90 via-purple-700/90 to-orange-500/90" />
-                  
+
                   {/* Category Icon */}
                   <div className="absolute left-8 top-1/2 transform -translate-y-1/2">
                     <div className="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center">
@@ -255,12 +264,16 @@ const TopPick: React.FC = () => {
                   </div>
 
                   {/* Play Button */}
-                  <button 
+                  <button
                     onClick={() => navigate(`/courses/${topCourse._id}`)}
                     className="absolute inset-0 flex items-center justify-center group"
                   >
                     <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white/30 transition-all duration-300 group-hover:scale-110">
-                      <Play className="text-white ml-1" size={24} fill="currentColor" />
+                      <Play
+                        className="text-white ml-1"
+                        size={24}
+                        fill="currentColor"
+                      />
                     </div>
                   </button>
                 </div>
@@ -275,20 +288,31 @@ const TopPick: React.FC = () => {
               </h3>
 
               {/* Course Description - Dynamic or Enhanced */}
-              <p className="text-gray-600 mb-4 leading-relaxed line-clamp-1" dangerouslySetInnerHTML={{__html: staticData.enhancedDescription}}>
-              </p>
+              <p
+                className="text-gray-600 mb-4 leading-relaxed line-clamp-1"
+                dangerouslySetInnerHTML={{
+                  __html: staticData.enhancedDescription,
+                }}
+              ></p>
 
               {/* Instructor - Dynamic */}
               <div className="mb-4">
                 <p className="text-sm text-gray-500">
-                  By <span className="font-medium text-gray-700">{topCourse.instructor.name}</span>
-                  <span className="text-gray-500">, {staticData.instructorTitle}</span>
+                  By{" "}
+                  <span className="font-medium text-gray-700">
+                    {topCourse.instructor.name}
+                  </span>
+                  <span className="text-gray-500">
+                    , {staticData.instructorTitle}
+                  </span>
                 </p>
               </div>
 
               {/* Course Meta - Mix of Dynamic and Static */}
               <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-600">
-                <span className="text-gray-500">{formatDate(topCourse.updatedAt)}</span>
+                <span className="text-gray-500">
+                  {formatDate(topCourse.updatedAt)}
+                </span>
                 <span>•</span>
                 <span>{topCourse.duration || 0} total hours</span>
                 <span>•</span>
@@ -300,7 +324,9 @@ const TopPick: React.FC = () => {
               {/* Rating and Badges - Static */}
               <div className="flex flex-wrap items-center gap-4 mb-6">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-gray-900">{staticData.rating}</span>
+                  <span className="font-bold text-gray-900">
+                    {staticData.rating}
+                  </span>
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
                       <Star

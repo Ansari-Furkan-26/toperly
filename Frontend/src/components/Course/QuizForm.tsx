@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
 
@@ -7,11 +6,10 @@ interface QuizFormProps {
   courseName: string;
   videoId: any[];
   isOpen: boolean;
-  quiz?: Quiz | null; 
+  quiz?: Quiz | null;
   onClose: () => void;
   onSuccess: () => void;
 }
-
 
 const QuizForm = ({
   courseId,
@@ -32,49 +30,53 @@ const QuizForm = ({
     },
   ]);
   const [loading, setLoading] = useState(false);
-  
-  useEffect(() => {
-  if (quiz) {
-    setTitle(quiz.title || "");
-    setVideoId(quiz.videoId || "");
-    setQuestions(
-      Array.isArray(quiz.questions) && quiz.questions.length
-        ? quiz.questions
-        : [
-            {
-              question: "",
-              options: ["", "", "", ""],
-              correctAnswer: 0,
-            },
-          ]
-    );
-  } else {
-    resetForm();
-  }
-}, [quiz]);
 
+  useEffect(() => {
+    if (quiz) {
+      setTitle(quiz.title || "");
+      setVideoId(quiz.videoId || "");
+      setQuestions(
+        Array.isArray(quiz.questions) && quiz.questions.length
+          ? quiz.questions
+          : [
+              {
+                question: "",
+                options: ["", "", "", ""],
+                correctAnswer: 0,
+              },
+            ]
+      );
+    } else {
+      resetForm();
+    }
+  }, [quiz]);
 
   useEffect(() => {
     if (isOpen && courseId) {
       const fetchLessons = async () => {
         try {
-          console.log('Making API call to:', `/api/courses/${courseId}`);
-          
+          console.log("Making API call to:", `/api/courses/${courseId}`);
+
           const token = localStorage.getItem("token");
-          const config = token ? {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          } : {};
-          
-          const res = await axios.get(`http://localhost:5000/api/courses/${courseId}`, config);
-          
-          console.log('=== API RESPONSE ===');
-          console.log('Full response:', res.data);
-          
+          const config = token
+            ? {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            : {};
+
+          const res = await axios.get(
+            `https://toperly.onrender.com/api/courses/${courseId}`,
+            config
+          );
+
+          console.log("=== API RESPONSE ===");
+          console.log("Full response:", res.data);
+
           // Based on your console output, try these paths:
           let courseVideos = [];
-          
+
           // Check multiple possible response structures
           if (res.data && res.data.data && res.data.data.videos) {
             courseVideos = res.data.data.videos;
@@ -87,21 +89,23 @@ const QuizForm = ({
             courseVideos = res.data;
           } else {
             // Look for any property that contains an array of videos
-            Object.keys(res.data).forEach(key => {
+            Object.keys(res.data).forEach((key) => {
               if (Array.isArray(res.data[key]) && res.data[key].length > 0) {
                 const firstItem = res.data[key][0];
-                if (firstItem && (firstItem.title || firstItem.name || firstItem.video)) {
+                if (
+                  firstItem &&
+                  (firstItem.title || firstItem.name || firstItem.video)
+                ) {
                   courseVideos = res.data[key];
                 }
               }
             });
           }
-          
-          console.log('Extracted courseVideos:', courseVideos);
-          console.log('courseVideos length:', courseVideos.length);
-          
+
+          console.log("Extracted courseVideos:", courseVideos);
+          console.log("courseVideos length:", courseVideos.length);
+
           setLessons(courseVideos);
-          
         } catch (err) {
           console.error("Failed to fetch course", err);
           setLessons([]);
@@ -190,49 +194,61 @@ const QuizForm = ({
     ]);
   }, []);
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const payload = {
-      course: courseId,
-      videoId: videoId || null,
-      title,
-      questions,
-    };
+    try {
+      const payload = {
+        course: courseId,
+        videoId: videoId || null,
+        title,
+        questions,
+      };
 
-    let response;
-    if (quiz?._id) {
-      // Update Quiz
-      response = await axios.put(`http://localhost:5000/api/quizzes/${quiz._id}`, payload, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-    } else {
-      // Create Quiz
-      response = await axios.post("http://localhost:5000/api/quizzes", payload, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      let response;
+      if (quiz?._id) {
+        // Update Quiz
+        response = await axios.put(
+          `https://toperly.onrender.com/api/quizzes/${quiz._id}`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+      } else {
+        // Create Quiz
+        response = await axios.post(
+          "https://toperly.onrender.com/api/quizzes",
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+      }
+
+      onSuccess();
+      onClose();
+      resetForm();
+
+      alert(
+        quiz?._id ? "Quiz updated successfully!" : "Quiz created successfully!"
+      );
+      console.log(response.data);
+    } catch (err: any) {
+      console.error(err);
+      alert(
+        err.response?.data?.message ||
+          (quiz?._id ? "Failed to update quiz" : "Failed to create quiz")
+      );
+    } finally {
+      setLoading(false);
     }
-
-    onSuccess();
-    onClose();
-    resetForm();
-
-    alert(quiz?._id ? "Quiz updated successfully!" : "Quiz created successfully!");
-    console.log(response.data);
-  } catch (err: any) {
-    console.error(err);
-    alert(err.response?.data?.message || (quiz?._id ? "Failed to update quiz" : "Failed to create quiz"));
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   // Don't render if not open
   if (!isOpen) return null;
@@ -384,15 +400,16 @@ const handleSubmit = async (e: React.FormEvent) => {
               disabled={loading}
               className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-             {loading ? (
-  <>
-    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-    {quiz?._id ? "Updating..." : "Creating..."}
-  </>
-) : (
-  quiz?._id ? "Update Quiz" : "Create Quiz"
-)}
-
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  {quiz?._id ? "Updating..." : "Creating..."}
+                </>
+              ) : quiz?._id ? (
+                "Update Quiz"
+              ) : (
+                "Create Quiz"
+              )}
             </button>
           </div>
         </form>

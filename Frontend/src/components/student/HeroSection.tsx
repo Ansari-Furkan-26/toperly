@@ -32,7 +32,7 @@ const HeroSection = () => {
   const fetchStats = async () => {
     try {
       // You can create an endpoint for stats or use existing data
-      const response = await fetch("http://localhost:5000/api/courses");
+      const response = await fetch("https://toperly.onrender.com/api/courses");
       if (response.ok) {
         const courses = await response.json();
         setStats({
@@ -57,7 +57,7 @@ const HeroSection = () => {
     if (searchTerm.trim()) {
       navigate(`/courses?search=${encodeURIComponent(searchTerm.trim())}`);
     } else {
-      navigate('/courses');
+      navigate("/courses");
     }
   };
 
@@ -71,9 +71,21 @@ const HeroSection = () => {
   ];
 
   const achievements = [
-    { icon: Users, value: stats.totalStudents.toLocaleString(), label: "Active Students" },
-    { icon: BookOpen, value: stats.totalCourses.toLocaleString(), label: "Courses Available" },
-    { icon: Award, value: stats.totalInstructors.toLocaleString(), label: "Expert Instructors" },
+    {
+      icon: Users,
+      value: stats.totalStudents.toLocaleString(),
+      label: "Active Students",
+    },
+    {
+      icon: BookOpen,
+      value: stats.totalCourses.toLocaleString(),
+      label: "Courses Available",
+    },
+    {
+      icon: Award,
+      value: stats.totalInstructors.toLocaleString(),
+      label: "Expert Instructors",
+    },
     { icon: Star, value: "4.8", label: "Average Rating" },
   ];
 
@@ -112,7 +124,9 @@ const HeroSection = () => {
 
             {/* Subheading */}
             <p className="text-xl text-gray-600 mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              Discover thousands of courses from industry experts. Build skills that matter and advance your career with hands-on projects and real-world experience.
+              Discover thousands of courses from industry experts. Build skills
+              that matter and advance your career with hands-on projects and
+              real-world experience.
             </p>
 
             {/* Search Bar */}
@@ -140,13 +154,13 @@ const HeroSection = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
               <button
-                onClick={() => navigate('/courses')}
+                onClick={() => navigate("/courses")}
                 className="px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-semibold transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
               >
                 Explore Courses
               </button>
               <button
-                onClick={() => navigate('/about')}
+                onClick={() => navigate("/about")}
                 className="px-8 py-4 bg-white/80 backdrop-blur-sm text-gray-700 rounded-xl hover:bg-white transition-all duration-200 font-semibold border border-gray-200 shadow-sm hover:shadow-md"
               >
                 Learn More
@@ -155,17 +169,27 @@ const HeroSection = () => {
 
             {/* Popular Categories */}
             <div className="hidden lg:block">
-              <p className="text-sm font-medium text-gray-500 mb-4">Popular Categories:</p>
+              <p className="text-sm font-medium text-gray-500 mb-4">
+                Popular Categories:
+              </p>
               <div className="flex flex-wrap gap-3">
                 {popularCategories.slice(0, 4).map((category, index) => (
                   <button
                     key={index}
-                    onClick={() => navigate(`/courses?category=${encodeURIComponent(category.name.toLowerCase().replace(' ', '-'))}`)}
+                    onClick={() =>
+                      navigate(
+                        `/courses?category=${encodeURIComponent(
+                          category.name.toLowerCase().replace(" ", "-")
+                        )}`
+                      )
+                    }
                     className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-white/40 hover:bg-white/80 transition-all duration-200 text-sm font-medium text-gray-700 hover:text-gray-900"
                   >
                     <span>{category.icon}</span>
                     <span>{category.name}</span>
-                    <span className="text-xs text-gray-500">({category.count})</span>
+                    <span className="text-xs text-gray-500">
+                      ({category.count})
+                    </span>
                   </button>
                 ))}
               </div>
@@ -182,8 +206,12 @@ const HeroSection = () => {
                   <Play size={24} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Featured Course</h3>
-                  <p className="text-gray-600 text-sm">Complete Web Development</p>
+                  <h3 className="font-semibold text-gray-900">
+                    Featured Course
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Complete Web Development
+                  </p>
                 </div>
               </div>
 
@@ -204,7 +232,7 @@ const HeroSection = () => {
                   "Interactive coding exercises",
                   "Real-world projects",
                   "Expert instructor support",
-                  "Certificate of completion"
+                  "Certificate of completion",
                 ].map((feature, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <CheckCircle size={16} className="text-green-500" />
@@ -218,14 +246,18 @@ const HeroSection = () => {
             <div className="absolute -top-4 -right-4 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
               <div className="flex items-center gap-2">
                 <Zap size={16} className="text-yellow-500" />
-                <span className="text-sm font-semibold text-gray-900">4.8★ Rating</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  4.8★ Rating
+                </span>
               </div>
             </div>
 
             <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4 border border-gray-100">
               <div className="flex items-center gap-2">
                 <TrendingUp size={16} className="text-green-500" />
-                <span className="text-sm font-semibold text-gray-900">50K+ Students</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  50K+ Students
+                </span>
               </div>
             </div>
           </div>
@@ -253,20 +285,28 @@ const HeroSection = () => {
 
       <style jsx>{`
         @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
+          0% {
+            transform: translate(0px, 0px) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+          100% {
+            transform: translate(0px, 0px) scale(1);
+          }
         }
-        
+
         .animate-blob {
           animation: blob 7s infinite;
         }
-        
+
         .animation-delay-2000 {
           animation-delay: 2s;
         }
-        
+
         .animation-delay-4000 {
           animation-delay: 4s;
         }

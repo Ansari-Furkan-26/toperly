@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '@/contexts/AuthContext'; // or wherever you store user info
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "@/contexts/AuthContext"; // or wherever you store user info
 
 const QuizPage = () => {
   const { courseId, quizId } = useParams();
@@ -17,23 +17,30 @@ const QuizPage = () => {
   useEffect(() => {
     const loadQuizAndAttempt = async () => {
       try {
-        const quizRes = await axios.get(`http://localhost:5000/api/quizzes/${quizId}`);
-        const attemptRes = await axios.get(`http://localhost:5000/api/quiz-attempts`, {
-          params: {
-            studentId: user.id,
-            quizId: quizId
+        const quizRes = await axios.get(
+          `https://toperly.onrender.com/api/quizzes/${quizId}`
+        );
+        const attemptRes = await axios.get(
+          `https://toperly.onrender.com/api/quiz-attempts`,
+          {
+            params: {
+              studentId: user.id,
+              quizId: quizId,
+            },
           }
-        });
+        );
 
         setQuiz(quizRes.data.data);
         setAttempted(attemptRes.data.data);
       } catch (err) {
         if (err.response?.status === 404) {
           // Quiz not yet attempted
-          const quizRes = await axios.get(`http://localhost:5000/api/quizzes/${quizId}`);
+          const quizRes = await axios.get(
+            `https://toperly.onrender.com/api/quizzes/${quizId}`
+          );
           setQuiz(quizRes.data.data);
         } else {
-          console.error('Error loading quiz or attempt:', err);
+          console.error("Error loading quiz or attempt:", err);
         }
       } finally {
         setLoading(false);
@@ -42,7 +49,7 @@ const QuizPage = () => {
 
     if (user?.id && quizId) loadQuizAndAttempt();
   }, [quizId, user]);
-  console.log(quiz)
+  console.log(quiz);
   const handleOptionSelect = (questionIndex, optionIndex) => {
     setAnswers((prev) => ({ ...prev, [questionIndex]: optionIndex }));
   };
@@ -52,28 +59,32 @@ const QuizPage = () => {
 
     const formattedAnswers = Object.keys(answers).map((key) => ({
       questionIndex: Number(key),
-      selectedOption: answers[key]
+      selectedOption: answers[key],
     }));
 
     try {
-      const res = await axios.post('http://localhost:5000/api/quiz-attempts', {
-        student: user.id,
-        studentCustomId: user.id,
-        course: courseId,
-        lesson: quiz.videoId, // using videoId as lesson
-        quiz: quiz._id,
-        answers: formattedAnswers
-      });
+      const res = await axios.post(
+        "https://toperly.onrender.com/api/quiz-attempts",
+        {
+          student: user.id,
+          studentCustomId: user.id,
+          course: courseId,
+          lesson: quiz.videoId, // using videoId as lesson
+          quiz: quiz._id,
+          answers: formattedAnswers,
+        }
+      );
 
       setAttempted(res.data.data);
     } catch (error) {
-      console.error('Submit error:', error);
-      alert(error?.response?.data?.message || 'Submission failed');
+      console.error("Submit error:", error);
+      alert(error?.response?.data?.message || "Submission failed");
     }
   };
 
   if (loading) return <div className="p-6 text-center">Loading quiz...</div>;
-  if (!quiz) return <div className="p-6 text-center text-red-500">Quiz not found</div>;
+  if (!quiz)
+    return <div className="p-6 text-center text-red-500">Quiz not found</div>;
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10 bg-white rounded shadow">
@@ -81,24 +92,30 @@ const QuizPage = () => {
 
       {quiz.questions.map((q, index) => (
         <div key={index} className="mb-6">
-          <h4 className="font-medium mb-2">{index + 1}. {q.question}</h4>
+          <h4 className="font-medium mb-2">
+            {index + 1}. {q.question}
+          </h4>
           <div className="space-y-2">
             {q.options.map((opt, optIndex) => {
               const isSelected = answers[index] === optIndex;
               const isCorrect = attempted && q.correctAnswer === optIndex;
-              const wasChosen = attempted && attempted.answers?.find(a => a.questionIndex === index)?.selectedOption === optIndex;
+              const wasChosen =
+                attempted &&
+                attempted.answers?.find((a) => a.questionIndex === index)
+                  ?.selectedOption === optIndex;
 
               return (
                 <label
                   key={optIndex}
                   className={`block px-3 py-2 rounded border
-                    ${attempted
-                      ? isCorrect
-                        ? 'border-green-500 bg-green-100'
-                        : wasChosen
-                          ? 'border-red-500 bg-red-100'
-                          : 'border-gray-300'
-                      : 'border-gray-300 hover:bg-gray-100 cursor-pointer'
+                    ${
+                      attempted
+                        ? isCorrect
+                          ? "border-green-500 bg-green-100"
+                          : wasChosen
+                          ? "border-red-500 bg-red-100"
+                          : "border-gray-300"
+                        : "border-gray-300 hover:bg-gray-100 cursor-pointer"
                     }`}
                 >
                   <input
@@ -106,10 +123,7 @@ const QuizPage = () => {
                     name={`question-${index}`}
                     value={optIndex}
                     disabled={!!attempted}
-                    checked={attempted
-                      ? wasChosen
-                      : isSelected
-                    }
+                    checked={attempted ? wasChosen : isSelected}
                     onChange={() => handleOptionSelect(index, optIndex)}
                     className="mr-2"
                   />
@@ -131,7 +145,9 @@ const QuizPage = () => {
       ) : (
         <div className="mt-6">
           <p className="text-lg font-semibold text-green-600">
-            You scored {attempted.score}% ({Math.round(quiz.questions.length * attempted.score / 100)} out of {quiz.questions.length})
+            You scored {attempted.score}% (
+            {Math.round((quiz.questions.length * attempted.score) / 100)} out of{" "}
+            {quiz.questions.length})
           </p>
           <button
             onClick={() => navigate(`/courses/${courseId}`)}

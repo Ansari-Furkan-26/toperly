@@ -28,7 +28,7 @@ const TopRatedCourses = () => {
   const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
   const { user, token } = useAuth();
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = "https://toperly.onrender.com/api";
 
   useEffect(() => {
     fetchTopRatedCourses();
@@ -44,9 +44,9 @@ const TopRatedCourses = () => {
 
       if (response.ok) {
         const data = await response.json();
-        
+
         // Sort courses by rating (simulated) and add rating data
-        const coursesWithRatings = data.map(course => ({
+        const coursesWithRatings = data.map((course) => ({
           ...course,
           rating: (Math.random() * 1.5 + 4).toFixed(1), // Random rating between 4.0-5.5
           reviewCount: Math.floor(Math.random() * 5000) + 1000, // Random reviews 1k-6k
@@ -60,7 +60,7 @@ const TopRatedCourses = () => {
 
         // If we need more courses, duplicate some with variations
         if (topRated.length < 8) {
-          const additionalCourses = topRated.slice(0, 4).map(course => ({
+          const additionalCourses = topRated.slice(0, 4).map((course) => ({
             ...course,
             _id: `${course._id}_advanced`,
             title: `Advanced ${course.title}`,
@@ -97,15 +97,15 @@ const TopRatedCourses = () => {
 
   const CourseCard = ({ course, index }) => {
     const isWishlisted = wishlist.includes(course._id);
-    
+
     const toggleWishlist = async () => {
       if (!user?.id) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
 
-      const originalId = course._id.includes('_advanced') 
-        ? course._id.split('_advanced')[0] 
+      const originalId = course._id.includes("_advanced")
+        ? course._id.split("_advanced")[0]
         : course._id;
 
       const endpoint = `${API_BASE}/wishlist/${originalId}`;
@@ -116,7 +116,7 @@ const TopRatedCourses = () => {
           method,
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         });
 
@@ -133,8 +133,8 @@ const TopRatedCourses = () => {
     };
 
     const handleCourseClick = () => {
-      const originalId = course._id.includes('_advanced') 
-        ? course._id.split('_advanced')[0] 
+      const originalId = course._id.includes("_advanced")
+        ? course._id.split("_advanced")[0]
         : course._id;
       navigate(`/courses/${originalId}`);
     };
@@ -147,12 +147,12 @@ const TopRatedCourses = () => {
     };
 
     return (
-      <div 
+      <div
         className="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-300 transform hover:-translate-y-1 h-full"
         style={{
           animationDelay: `${index * 100}ms`,
-          animation: 'fadeInUp 0.6s ease-out forwards',
-          opacity: 0
+          animation: "fadeInUp 0.6s ease-out forwards",
+          opacity: 0,
         }}
       >
         {/* Course Thumbnail */}
@@ -162,7 +162,9 @@ const TopRatedCourses = () => {
             <div className="absolute top-3 left-3 z-10">
               <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 border border-yellow-200 rounded-full">
                 <Award size={12} className="text-yellow-600" />
-                <span className="text-xs font-semibold text-yellow-700">Top Rated</span>
+                <span className="text-xs font-semibold text-yellow-700">
+                  Top Rated
+                </span>
               </div>
             </div>
           )}
@@ -171,7 +173,9 @@ const TopRatedCourses = () => {
           <div className="absolute top-3 right-14 z-10">
             <div className="flex items-center gap-1 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full border border-white/50">
               <Star size={12} className="text-amber-400 fill-current" />
-              <span className={`text-xs font-bold ${getRatingColor(course.rating)}`}>
+              <span
+                className={`text-xs font-bold ${getRatingColor(course.rating)}`}
+              >
                 {course.rating}
               </span>
             </div>
@@ -186,8 +190,8 @@ const TopRatedCourses = () => {
               <Heart
                 size={16}
                 className={
-                  isWishlisted 
-                    ? "text-red-500 fill-red-500" 
+                  isWishlisted
+                    ? "text-red-500 fill-red-500"
                     : "text-gray-400 hover:text-red-400"
                 }
               />
@@ -221,7 +225,7 @@ const TopRatedCourses = () => {
                   : "bg-red-100/90 text-red-700 border border-red-200/50"
               }`}
             >
-              {course.level?.toUpperCase() || 'BEGINNER'}
+              {course.level?.toUpperCase() || "BEGINNER"}
             </span>
           </div>
 
@@ -234,7 +238,7 @@ const TopRatedCourses = () => {
           {/* Category Tag */}
           <div className="mb-3">
             <span className="inline-block px-2.5 py-1 bg-blue-100 text-blue-600 text-xs font-medium rounded-md uppercase tracking-wide">
-              {course.category || 'DEVELOPMENTS'}
+              {course.category || "DEVELOPMENTS"}
             </span>
           </div>
 
@@ -248,7 +252,11 @@ const TopRatedCourses = () => {
             <div className="flex items-center gap-2">
               <div className="flex items-center">
                 <Star size={16} className="text-amber-400 fill-current mr-1" />
-                <span className={`text-lg font-bold ${getRatingColor(course.rating)}`}>
+                <span
+                  className={`text-lg font-bold ${getRatingColor(
+                    course.rating
+                  )}`}
+                >
                   {course.rating}
                 </span>
               </div>
@@ -292,7 +300,10 @@ const TopRatedCourses = () => {
   const LoadingSkeleton = () => (
     <div className="flex gap-6 overflow-hidden">
       {[...Array(4)].map((_, i) => (
-        <div key={i} className="min-w-[300px] bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse">
+        <div
+          key={i}
+          className="min-w-[300px] bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse"
+        >
           <div className="h-48 bg-gray-200" />
           <div className="p-5">
             <div className="h-4 bg-gray-200 rounded mb-3" />
@@ -341,9 +352,9 @@ const TopRatedCourses = () => {
               Highest rated courses based on student reviews and satisfaction
             </p>
           </div>
-          
+
           <button
-            onClick={() => navigate('/courses?sort=rating')}
+            onClick={() => navigate("/courses?sort=rating")}
             className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 active:scale-95 font-medium"
           >
             View All
@@ -358,13 +369,13 @@ const TopRatedCourses = () => {
             spaceBetween={24}
             slidesPerView={1}
             navigation={{
-              prevEl: '.swiper-button-prev-custom-toprated',
-              nextEl: '.swiper-button-next-custom-toprated',
+              prevEl: ".swiper-button-prev-custom-toprated",
+              nextEl: ".swiper-button-next-custom-toprated",
             }}
             pagination={{
               clickable: true,
-              bulletClass: 'swiper-pagination-bullet-toprated',
-              bulletActiveClass: 'swiper-pagination-bullet-active-toprated',
+              bulletClass: "swiper-pagination-bullet-toprated",
+              bulletActiveClass: "swiper-pagination-bullet-active-toprated",
             }}
             autoplay={{
               delay: 5000,
@@ -392,25 +403,26 @@ const TopRatedCourses = () => {
                 <CourseCard course={course} index={index} />
               </SwiperSlide>
             ))}
-            
+
             {/* View All Courses Slide */}
             <SwiperSlide>
-              <div 
-                onClick={() => navigate('/courses?sort=rating')}
+              <div
+                onClick={() => navigate("/courses?sort=rating")}
                 className="group bg-gradient-to-br from-blue-50 to-yellow-100 rounded-xl border-2 border-dashed border-blue-200 overflow-hidden hover:from-blue-100 hover:to-yellow-200 hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1 h-full cursor-pointer flex flex-col items-center justify-center p-8 min-h-[400px]"
               >
                 <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <TrendingUp size={24} className="text-white" />
                 </div>
-                
+
                 <h3 className="text-xl font-semibold text-gray-900 mb-3 text-center">
                   More Top Rated Courses
                 </h3>
-                
+
                 <p className="text-gray-600 text-center mb-6 leading-relaxed">
-                  Explore our complete collection of highest-rated courses across all categories
+                  Explore our complete collection of highest-rated courses
+                  across all categories
                 </p>
-                
+
                 <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium group-hover:scale-105">
                   View All Top Rated
                 </button>
@@ -420,11 +432,17 @@ const TopRatedCourses = () => {
 
           {/* Custom Navigation Buttons */}
           <button className="swiper-button-prev-custom-toprated absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-all duration-200 group">
-            <ChevronLeft size={20} className="text-gray-600 group-hover:text-gray-900" />
+            <ChevronLeft
+              size={20}
+              className="text-gray-600 group-hover:text-gray-900"
+            />
           </button>
-          
+
           <button className="swiper-button-next-custom-toprated absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-all duration-200 group">
-            <ChevronRight size={20} className="text-gray-600 group-hover:text-gray-900" />
+            <ChevronRight
+              size={20}
+              className="text-gray-600 group-hover:text-gray-900"
+            />
           </button>
         </div>
       </div>

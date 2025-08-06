@@ -26,7 +26,7 @@ const RecommendedCourses = () => {
   const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
   const { user, token } = useAuth();
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = "https://toperly.onrender.com/api";
 
   useEffect(() => {
     fetchRecommendedCourses();
@@ -42,22 +42,22 @@ const RecommendedCourses = () => {
 
       if (response.ok) {
         const data = await response.json();
-        
+
         // Duplicate courses to have more content for the slider
         const duplicatedCourses = [
           ...data,
-          ...data.map(course => ({
+          ...data.map((course) => ({
             ...course,
             _id: `${course._id}_dup1`,
             title: `${course.title} - Advanced`,
           })),
-          ...data.map(course => ({
+          ...data.map((course) => ({
             ...course,
             _id: `${course._id}_dup2`,
             title: `${course.title} - Masterclass`,
           })),
         ];
-        
+
         // Shuffle and take first 12 courses
         const shuffled = duplicatedCourses.sort(() => 0.5 - Math.random());
         setCourses(shuffled.slice(0, 12));
@@ -90,12 +90,12 @@ const RecommendedCourses = () => {
 
     const toggleWishlist = async () => {
       if (!user?.id) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
 
-      const originalId = course._id.includes('_dup') 
-        ? course._id.split('_dup')[0] 
+      const originalId = course._id.includes("_dup")
+        ? course._id.split("_dup")[0]
         : course._id;
 
       const endpoint = `${API_BASE}/wishlist/${originalId}`;
@@ -106,7 +106,7 @@ const RecommendedCourses = () => {
           method,
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         });
 
@@ -123,8 +123,8 @@ const RecommendedCourses = () => {
     };
 
     const handleCourseClick = () => {
-      const originalId = course._id.includes('_dup') 
-        ? course._id.split('_dup')[0] 
+      const originalId = course._id.includes("_dup")
+        ? course._id.split("_dup")[0]
         : course._id;
       navigate(`/courses/${originalId}`);
     };
@@ -142,8 +142,8 @@ const RecommendedCourses = () => {
               <Heart
                 size={16}
                 className={
-                  isWishlisted 
-                    ? "text-red-500 fill-red-500" 
+                  isWishlisted
+                    ? "text-red-500 fill-red-500"
                     : "text-gray-400 hover:text-red-400"
                 }
               />
@@ -177,7 +177,7 @@ const RecommendedCourses = () => {
                   : "bg-red-100/90 text-red-700 border border-red-200/50"
               }`}
             >
-              {course.level?.toUpperCase() || 'BEGINNER'}
+              {course.level?.toUpperCase() || "BEGINNER"}
             </span>
           </div>
         </div>
@@ -187,7 +187,7 @@ const RecommendedCourses = () => {
           {/* Category Tag */}
           <div className="mb-3">
             <span className="inline-block px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-md uppercase tracking-wide">
-              {course.category || 'DEVELOPMENTS'}
+              {course.category || "DEVELOPMENTS"}
             </span>
           </div>
 
@@ -242,7 +242,10 @@ const RecommendedCourses = () => {
   const LoadingSkeleton = () => (
     <div className="flex gap-6 overflow-hidden">
       {[...Array(4)].map((_, i) => (
-        <div key={i} className="min-w-[300px] bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse">
+        <div
+          key={i}
+          className="min-w-[300px] bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse"
+        >
           <div className="h-48 bg-gray-200" />
           <div className="p-5">
             <div className="h-4 bg-gray-200 rounded mb-3" />
@@ -286,9 +289,9 @@ const RecommendedCourses = () => {
               Handpicked courses just for you based on your interests
             </p>
           </div>
-          
+
           <button
-            onClick={() => navigate('/courses')}
+            onClick={() => navigate("/courses")}
             className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 active:scale-95 font-medium"
           >
             All Courses
@@ -303,13 +306,13 @@ const RecommendedCourses = () => {
             spaceBetween={24}
             slidesPerView={1}
             navigation={{
-              prevEl: '.swiper-button-prev-custom',
-              nextEl: '.swiper-button-next-custom',
+              prevEl: ".swiper-button-prev-custom",
+              nextEl: ".swiper-button-next-custom",
             }}
             pagination={{
               clickable: true,
-              bulletClass: 'swiper-pagination-bullet',
-              bulletActiveClass: 'swiper-pagination-bullet-active',
+              bulletClass: "swiper-pagination-bullet",
+              bulletActiveClass: "swiper-pagination-bullet-active",
             }}
             autoplay={{
               delay: 4000,
@@ -337,25 +340,26 @@ const RecommendedCourses = () => {
                 <CourseCard course={course} />
               </SwiperSlide>
             ))}
-            
+
             {/* More Courses Slide */}
             <SwiperSlide>
-              <div 
-                onClick={() => navigate('/courses')}
+              <div
+                onClick={() => navigate("/courses")}
                 className="group bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl border-2 border-dashed border-blue-200 overflow-hidden hover:from-blue-100 hover:to-indigo-200 hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1 h-full cursor-pointer flex flex-col items-center justify-center p-8 min-h-[400px]"
               >
                 <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <ArrowRight size={24} className="text-white" />
                 </div>
-                
+
                 <h3 className="text-xl font-semibold text-gray-900 mb-3 text-center">
                   Explore More Courses
                 </h3>
-                
+
                 <p className="text-gray-600 text-center mb-6 leading-relaxed">
-                  Discover hundreds of courses across different categories and skill levels
+                  Discover hundreds of courses across different categories and
+                  skill levels
                 </p>
-                
+
                 <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium group-hover:scale-105">
                   View All Courses
                 </button>
@@ -365,11 +369,17 @@ const RecommendedCourses = () => {
 
           {/* Custom Navigation Buttons */}
           <button className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-all duration-200 group">
-            <ChevronLeft size={20} className="text-gray-600 group-hover:text-gray-900" />
+            <ChevronLeft
+              size={20}
+              className="text-gray-600 group-hover:text-gray-900"
+            />
           </button>
-          
+
           <button className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-all duration-200 group">
-            <ChevronRight size={20} className="text-gray-600 group-hover:text-gray-900" />
+            <ChevronRight
+              size={20}
+              className="text-gray-600 group-hover:text-gray-900"
+            />
           </button>
         </div>
       </div>

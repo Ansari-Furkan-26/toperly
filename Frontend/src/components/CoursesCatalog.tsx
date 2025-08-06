@@ -28,7 +28,7 @@ const CoursesCatalog = () => {
   const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
   const { user, token } = useAuth();
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = "https://toperly.onrender.com/api";
 
   useEffect(() => {
     fetchCourses();
@@ -37,26 +37,32 @@ const CoursesCatalog = () => {
   // Client-side sorting function
   const sortCourses = (coursesToSort, sortType) => {
     const sorted = [...coursesToSort];
-    
+
     switch (sortType) {
-      case 'latest':
-        return sorted.sort((a, b) => new Date(b.createdAt || b.updatedAt) - new Date(a.createdAt || a.updatedAt));
-      
-      case 'popular':
-        return sorted.sort((a, b) => (b.enrolledCount || 0) - (a.enrolledCount || 0));
-      
-      case 'price-low':
+      case "latest":
+        return sorted.sort(
+          (a, b) =>
+            new Date(b.createdAt || b.updatedAt) -
+            new Date(a.createdAt || a.updatedAt)
+        );
+
+      case "popular":
+        return sorted.sort(
+          (a, b) => (b.enrolledCount || 0) - (a.enrolledCount || 0)
+        );
+
+      case "price-low":
         return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
-      
-      case 'price-high':
+
+      case "price-high":
         return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
-      
-      case 'rating':
+
+      case "rating":
         return sorted.sort((a, b) => (b.rating || 4.8) - (a.rating || 4.8));
-      
-      case 'title':
+
+      case "title":
         return sorted.sort((a, b) => a.title.localeCompare(b.title));
-      
+
       default:
         return sorted;
     }
@@ -142,10 +148,10 @@ const CoursesCatalog = () => {
 
   const CourseCard = ({ course, index }) => {
     const isWishlisted = wishlist.includes(course._id);
-    
+
     const toggleWishlist = async () => {
       if (!user?.id) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
 
@@ -157,7 +163,7 @@ const CoursesCatalog = () => {
           method,
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         });
 
@@ -174,12 +180,12 @@ const CoursesCatalog = () => {
     };
 
     return (
-      <div 
+      <div
         className="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-300 transform hover:-translate-y-1"
         style={{
           animationDelay: `${index * 100}ms`,
-          animation: 'fadeInUp 0.6s ease-out forwards',
-          opacity: 0
+          animation: "fadeInUp 0.6s ease-out forwards",
+          opacity: 0,
         }}
       >
         {/* Course Thumbnail */}
@@ -193,8 +199,8 @@ const CoursesCatalog = () => {
               <Heart
                 size={16}
                 className={
-                  isWishlisted 
-                    ? "text-red-500 fill-red-500" 
+                  isWishlisted
+                    ? "text-red-500 fill-red-500"
                     : "text-gray-400 hover:text-red-400"
                 }
               />
@@ -228,7 +234,7 @@ const CoursesCatalog = () => {
                   : "bg-red-100/90 text-red-700 border border-red-200/50"
               }`}
             >
-              {course.level?.toUpperCase() || 'BEGINNER'}
+              {course.level?.toUpperCase() || "BEGINNER"}
             </span>
           </div>
 
@@ -241,7 +247,7 @@ const CoursesCatalog = () => {
           {/* Category Tag */}
           <div className="mb-3">
             <span className="inline-block px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-md uppercase tracking-wide">
-              {course.category || 'DEVELOPMENTS'}
+              {course.category || "DEVELOPMENTS"}
             </span>
           </div>
 
@@ -296,7 +302,10 @@ const CoursesCatalog = () => {
   const LoadingSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {[...Array(8)].map((_, i) => (
-        <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse">
+        <div
+          key={i}
+          className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse"
+        >
           <div className="h-48 bg-gray-200" />
           <div className="p-5">
             <div className="h-4 bg-gray-200 rounded mb-3" />
@@ -320,9 +329,7 @@ const CoursesCatalog = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Courses
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Courses</h1>
               <p className="text-gray-600">
                 Discover and learn from our extensive course catalog
               </p>
@@ -360,7 +367,10 @@ const CoursesCatalog = () => {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                <ChevronDown
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                  size={16}
+                />
               </div>
 
               <div className="relative flex-1 sm:flex-none sm:w-48">
@@ -374,7 +384,10 @@ const CoursesCatalog = () => {
                   <option value="intermediate">Intermediate</option>
                   <option value="advanced">Advanced</option>
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                <ChevronDown
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                  size={16}
+                />
               </div>
             </div>
 
@@ -392,7 +405,10 @@ const CoursesCatalog = () => {
                   <option value="rating">Highest Rated</option>
                   <option value="title">Title A-Z</option>
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                <ChevronDown
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                  size={16}
+                />
               </div>
 
               {/* View Mode Toggle */}
@@ -455,35 +471,39 @@ const CoursesCatalog = () => {
             {/* Results Count */}
             <div className="flex items-center justify-between mb-6">
               <p className="text-gray-600">
-                Showing {courses.length} course{courses.length !== 1 ? 's' : ''}
+                Showing {courses.length} course{courses.length !== 1 ? "s" : ""}
                 {searchTerm && ` for "${searchTerm}"`}
                 {selectedCategory && ` in ${selectedCategory}`}
                 {selectedLevel && ` (${selectedLevel} level)`}
               </p>
               <p className="text-sm text-gray-500">
-                Sorted by: {
-                  sortBy === 'latest' ? 'Latest' :
-                  sortBy === 'popular' ? 'Most Popular' :
-                  sortBy === 'price-low' ? 'Price: Low to High' :
-                  sortBy === 'price-high' ? 'Price: High to Low' :
-                  sortBy === 'rating' ? 'Highest Rated' :
-                  sortBy === 'title' ? 'Title A-Z' : 'Default'
-                }
+                Sorted by:{" "}
+                {sortBy === "latest"
+                  ? "Latest"
+                  : sortBy === "popular"
+                  ? "Most Popular"
+                  : sortBy === "price-low"
+                  ? "Price: Low to High"
+                  : sortBy === "price-high"
+                  ? "Price: High to Low"
+                  : sortBy === "rating"
+                  ? "Highest Rated"
+                  : sortBy === "title"
+                  ? "Title A-Z"
+                  : "Default"}
               </p>
             </div>
 
             {/* Course Grid */}
-            <div className={`grid gap-6 ${
-              viewMode === "grid" 
-                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
-                : "grid-cols-1"
-            }`}>
+            <div
+              className={`grid gap-6 ${
+                viewMode === "grid"
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  : "grid-cols-1"
+              }`}
+            >
               {courses.map((course, index) => (
-                <CourseCard 
-                  key={course._id} 
-                  course={course} 
-                  index={index}
-                />
+                <CourseCard key={course._id} course={course} index={index} />
               ))}
             </div>
           </>

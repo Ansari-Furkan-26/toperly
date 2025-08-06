@@ -9,7 +9,7 @@ import Material from "./student/Material";
 import Toast from "./student/Toast";
 import CourseReviewSection from "./student/CourseReviewSection";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://toperly.onrender.com/api";
 
 const CourseDetail = () => {
   const { courseId } = useParams();

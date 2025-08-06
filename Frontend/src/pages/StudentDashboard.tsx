@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  CartesianGrid, 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
   ResponsiveContainer,
   BarChart,
   Bar,
@@ -15,18 +15,18 @@ import {
   Cell,
   Legend,
   Area,
-  AreaChart
+  AreaChart,
 } from "recharts";
-import { 
-  BookOpen, 
-  Award, 
-  Star, 
+import {
+  BookOpen,
+  Award,
+  Star,
   Trophy,
   TrendingUp,
   Calendar,
   User,
   Target,
-  Clock
+  Clock,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -35,12 +35,12 @@ export const StudentDashboard = () => {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const navigate = useNavigate();
   useEffect(() => {
-    fetch("http://localhost:5000/api/auth/me", {
+    fetch("https://toperly.onrender.com/api/auth/me", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     })
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setData);
   }, []);
 
@@ -58,15 +58,23 @@ export const StudentDashboard = () => {
     );
   }
 
-  const totalCourses = data.enrolledCourses.length;
-  const totalCertificates = data.certificates.length;
-  const totalReviews = data.reviews.length;
-  const totalScore = data.quizAttempts.reduce((acc: number, q: any) => acc + (q.score || 0), 0);
-  const avgScore = data.quizAttempts.length ? (totalScore / data.quizAttempts.length).toFixed(1) : "0";
+  const totalCourses = data.enrolledCourses?.length;
+  const totalCertificates = data.certificates?.length;
+  const totalReviews = data.reviews?.length;
+  const totalScore = data.quizAttempts.reduce(
+    (acc: number, q: any) => acc + (q.score || 0),
+    0
+  );
+  const avgScore = data.quizAttempts?.length
+    ? (totalScore / data.quizAttempts?.length).toFixed(1)
+    : "0";
 
   // Course Progress Chart Data
   const progressChartData = data.enrolledCourses.map((c: any, idx: number) => ({
-    name: c.course.title.length > 15 ? c.course.title.substring(0, 15) + "..." : c.course.title,
+    name:
+      c.course.title?.length > 15
+        ? c.course.title.substring(0, 15) + "..."
+        : c.course.title,
     fullName: c.course.title,
     progress: c.progress || 0,
     completed: c.progress >= 100,
@@ -81,69 +89,83 @@ export const StudentDashboard = () => {
 
   // Course Status Distribution
   const courseStatusData = [
-    { name: 'In Progress', value: data.enrolledCourses.filter((c: any) => c.progress < 100).length, color: '#6366f1' },
-    { name: 'Completed', value: data.enrolledCourses.filter((c: any) => c.progress >= 100).length, color: '#10b981' },
-    { name: 'Not Started', value: data.enrolledCourses.filter((c: any) => c.progress === 0).length, color: '#f59e0b' },
+    {
+      name: "In Progress",
+      value: data.enrolledCourses.filter((c: any) => c.progress < 100)?.length,
+      color: "#6366f1",
+    },
+    {
+      name: "Completed",
+      value: data.enrolledCourses.filter((c: any) => c.progress >= 100)?.length,
+      color: "#10b981",
+    },
+    {
+      name: "Not Started",
+      value: data.enrolledCourses.filter((c: any) => c.progress === 0)?.length,
+      color: "#f59e0b",
+    },
   ];
 
   // Monthly Activity Data (mock data - you can replace with real data)
   const monthlyActivity = [
-    { month: 'Jan', courses: 2, certificates: 0, quizzes: 3 },
-    { month: 'Feb', courses: 1, certificates: 1, quizzes: 5 },
-    { month: 'Mar', courses: 3, certificates: 2, quizzes: 8 },
-    { month: 'Apr', courses: 1, certificates: 1, quizzes: 4 },
-    { month: 'May', courses: 2, certificates: 3, quizzes: 6 },
-    { month: 'Jun', courses: 1, certificates: 1, quizzes: 7 },
+    { month: "Jan", courses: 2, certificates: 0, quizzes: 3 },
+    { month: "Feb", courses: 1, certificates: 1, quizzes: 5 },
+    { month: "Mar", courses: 3, certificates: 2, quizzes: 8 },
+    { month: "Apr", courses: 1, certificates: 1, quizzes: 4 },
+    { month: "May", courses: 2, certificates: 3, quizzes: 6 },
+    { month: "Jun", courses: 1, certificates: 1, quizzes: 7 },
   ];
 
   const statCards = [
     {
-      id: 'courses',
-      title: 'Enrolled Courses',
+      id: "courses",
+      title: "Enrolled Courses",
       value: totalCourses,
       icon: BookOpen,
-      color: 'bg-blue-50 text-blue-600',
-      change: '+12%',
-      changeType: 'increase'
+      color: "bg-blue-50 text-blue-600",
+      change: "+12%",
+      changeType: "increase",
     },
     {
-      id: 'certificates',
-      title: 'Certificates Earned',
+      id: "certificates",
+      title: "Certificates Earned",
       value: totalCertificates,
       icon: Award,
-      color: 'bg-green-50 text-green-600',
-      change: '+8%',
-      changeType: 'increase'
+      color: "bg-green-50 text-green-600",
+      change: "+8%",
+      changeType: "increase",
     },
     {
-      id: 'reviews',
-      title: 'Reviews Given',
+      id: "reviews",
+      title: "Reviews Given",
       value: totalReviews,
       icon: Star,
-      color: 'bg-yellow-50 text-yellow-600',
-      change: '+5%',
-      changeType: 'increase'
+      color: "bg-yellow-50 text-yellow-600",
+      change: "+5%",
+      changeType: "increase",
     },
     {
-      id: 'score',
-      title: 'Avg Quiz Score',
+      id: "score",
+      title: "Avg Quiz Score",
       value: `${avgScore}%`,
       icon: Trophy,
-      color: 'bg-purple-50 text-purple-600',
-      change: '+15%',
-      changeType: 'increase'
+      color: "bg-purple-50 text-purple-600",
+      change: "+15%",
+      changeType: "increase",
     },
   ];
 
   // Custom tooltip components
   const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
+    if (active && payload && payload?.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{`${label}`}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {`${entry.dataKey}: ${entry.value}${entry.dataKey === 'progress' ? '%' : ''}`}
+              {`${entry.dataKey}: ${entry.value}${
+                entry.dataKey === "progress" ? "%" : ""
+              }`}
             </p>
           ))}
         </div>
@@ -158,18 +180,27 @@ export const StudentDashboard = () => {
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-            <User className="w-8 h-8 text-gray-600" />
+            <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+              <User className="w-8 h-8 text-gray-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Welcome back, {data.profile?.name || "Student"}!
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Continue your learning journey and track your progress
+              </p>
+            </div>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Welcome back, {data.profile?.name || 'Student'}!
-            </h1>
-            <p className="text-gray-600 mt-1">Continue your learning journey and track your progress</p>
-          </div>
-          </div>
-          <div>
-            <button className="w-full bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 active:bg-gray-700 transition-all duration-200 font-medium text-sm transform hover:scale-[1.02] active:scale-[0.98] px-4" onClick={() => {navigate('/profile-settings')}}>Edit Profile</button>
+            <button
+              className="w-full bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 active:bg-gray-700 transition-all duration-200 font-medium text-sm transform hover:scale-[1.02] active:scale-[0.98] px-4"
+              onClick={() => {
+                navigate("/profile-settings");
+              }}
+            >
+              Edit Profile
+            </button>
           </div>
         </div>
       </div>
@@ -179,10 +210,10 @@ export const StudentDashboard = () => {
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
-            <Card 
+            <Card
               key={stat.id}
               className={`cursor-pointer transition-all duration-300 border-0 shadow-sm hover:shadow-md ${
-                hoveredCard === stat.id ? 'scale-105 ring-2 ring-gray-200' : ''
+                hoveredCard === stat.id ? "scale-105 ring-2 ring-gray-200" : ""
               }`}
               onMouseEnter={() => setHoveredCard(stat.id)}
               onMouseLeave={() => setHoveredCard(null)}
@@ -198,11 +229,17 @@ export const StudentDashboard = () => {
                     </p>
                     <div className="flex items-center mt-2">
                       <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                      <span className="text-sm text-green-600 font-medium">{stat.change}</span>
-                      <span className="text-sm text-gray-500 ml-1">from last month</span>
+                      <span className="text-sm text-green-600 font-medium">
+                        {stat.change}
+                      </span>
+                      <span className="text-sm text-gray-500 ml-1">
+                        from last month
+                      </span>
                     </div>
                   </div>
-                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${stat.color}`}>
+                  <div
+                    className={`w-14 h-14 rounded-xl flex items-center justify-center ${stat.color}`}
+                  >
                     <Icon className="w-7 h-7" />
                   </div>
                 </div>
@@ -226,31 +263,37 @@ export const StudentDashboard = () => {
             <ResponsiveContainer width="100%" height={320}>
               <AreaChart data={progressChartData}>
                 <defs>
-                  <linearGradient id="progressGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                  <linearGradient
+                    id="progressGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis 
-                  dataKey="name" 
-                  tick={{ fontSize: 12, fill: '#64748b' }}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 12, fill: "#64748b" }}
+                  axisLine={{ stroke: "#e2e8f0" }}
                 />
-                <YAxis 
-                  domain={[0, 100]} 
-                  tick={{ fontSize: 12, fill: '#64748b' }}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                <YAxis
+                  domain={[0, 100]}
+                  tick={{ fontSize: 12, fill: "#64748b" }}
+                  axisLine={{ stroke: "#e2e8f0" }}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Area 
-                  type="monotone" 
-                  dataKey="progress" 
-                  stroke="#6366f1" 
+                <Area
+                  type="monotone"
+                  dataKey="progress"
+                  stroke="#6366f1"
                   strokeWidth={3}
                   fill="url(#progressGradient)"
-                  dot={{ r: 6, fill: '#6366f1' }}
-                  activeDot={{ r: 8, fill: '#4f46e5' }}
+                  dot={{ r: 6, fill: "#6366f1" }}
+                  activeDot={{ r: 8, fill: "#4f46e5" }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -269,19 +312,19 @@ export const StudentDashboard = () => {
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={quizData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis 
-                  dataKey="quiz" 
-                  tick={{ fontSize: 12, fill: '#64748b' }}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                <XAxis
+                  dataKey="quiz"
+                  tick={{ fontSize: 12, fill: "#64748b" }}
+                  axisLine={{ stroke: "#e2e8f0" }}
                 />
-                <YAxis 
+                <YAxis
                   domain={[0, 100]}
-                  tick={{ fontSize: 12, fill: '#64748b' }}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                  tick={{ fontSize: 12, fill: "#64748b" }}
+                  axisLine={{ stroke: "#e2e8f0" }}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar 
-                  dataKey="score" 
+                <Bar
+                  dataKey="score"
                   fill="#10b981"
                   radius={[4, 4, 0, 0]}
                   onMouseEnter={(data, index) => {
@@ -321,10 +364,12 @@ export const StudentDashboard = () => {
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend 
-                  verticalAlign="bottom" 
+                <Legend
+                  verticalAlign="bottom"
                   height={36}
-                  formatter={(value) => <span className="text-sm text-gray-700">{value}</span>}
+                  formatter={(value) => (
+                    <span className="text-sm text-gray-700">{value}</span>
+                  )}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -343,44 +388,48 @@ export const StudentDashboard = () => {
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={monthlyActivity}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis 
-                  dataKey="month" 
-                  tick={{ fontSize: 12, fill: '#64748b' }}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 12, fill: "#64748b" }}
+                  axisLine={{ stroke: "#e2e8f0" }}
                 />
-                <YAxis 
-                  tick={{ fontSize: 12, fill: '#64748b' }}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                <YAxis
+                  tick={{ fontSize: 12, fill: "#64748b" }}
+                  axisLine={{ stroke: "#e2e8f0" }}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Line 
-                  type="monotone" 
-                  dataKey="courses" 
-                  stroke="#3b82f6" 
+                <Line
+                  type="monotone"
+                  dataKey="courses"
+                  stroke="#3b82f6"
                   strokeWidth={3}
                   dot={{ r: 5 }}
                   activeDot={{ r: 7 }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="certificates" 
-                  stroke="#10b981" 
+                <Line
+                  type="monotone"
+                  dataKey="certificates"
+                  stroke="#10b981"
                   strokeWidth={3}
                   dot={{ r: 5 }}
                   activeDot={{ r: 7 }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="quizzes" 
-                  stroke="#f59e0b" 
+                <Line
+                  type="monotone"
+                  dataKey="quizzes"
+                  stroke="#f59e0b"
                   strokeWidth={3}
                   dot={{ r: 5 }}
                   activeDot={{ r: 7 }}
                 />
-                <Legend 
-                  verticalAlign="bottom" 
+                <Legend
+                  verticalAlign="bottom"
                   height={36}
-                  formatter={(value) => <span className="text-sm text-gray-700 capitalize">{value}</span>}
+                  formatter={(value) => (
+                    <span className="text-sm text-gray-700 capitalize">
+                      {value}
+                    </span>
+                  )}
                 />
               </LineChart>
             </ResponsiveContainer>

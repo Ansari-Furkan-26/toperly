@@ -1,24 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 interface VdoPlayerProps {
   videoId: string; // VdoCipher videoId
 }
 
 const VdoPlayer: React.FC<VdoPlayerProps> = ({ videoId }) => {
-  const [otp, setOtp] = useState('');
-  const [playbackInfo, setPlaybackInfo] = useState('');
-  const [error, setError] = useState('');
+  const [otp, setOtp] = useState("");
+  const [playbackInfo, setPlaybackInfo] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchOtp = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/vdocipher/otp/${videoId}`);
+        const response = await axios.get(
+          `https://toperly.onrender.com/api/vdocipher/otp/${videoId}`
+        );
         setOtp(response.data.otp);
         setPlaybackInfo(response.data.playbackInfo);
       } catch (err: any) {
-        console.error('Failed to fetch OTP:', err);
-        setError('Could not load the video');
+        console.error("Failed to fetch OTP:", err);
+        setError("Could not load the video");
       }
     };
 
@@ -33,7 +35,7 @@ const VdoPlayer: React.FC<VdoPlayerProps> = ({ videoId }) => {
   return (
     <iframe
       src={iframeSrc}
-      style={{ border: 0, width: '100%', height: 405, maxWidth: 720 }}
+      style={{ border: 0, width: "100%", height: 405, maxWidth: 720 }}
       allow="encrypted-media"
       allowFullScreen
       title="VdoCipher Player"
