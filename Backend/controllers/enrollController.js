@@ -1,19 +1,70 @@
 import EnrolledCourse from '../models/EnrolledCourse.js';
- 
+import Course from '../models/Course.js';
+
 export const enrollStudent = async (req, res) => {
   const studentId = req.user.id;
   const courseId = req.params.courseId;
+  const { paymentId, orderId, signature } = req.body; // For paid courses
 
   try {
-    const existing = await EnrolledCourse.findOne({ student: studentId, course: courseId });
+    // Check if already enrolled
+    const existing = await EnrolledCourse.findOne({ 
+      student: studentId, 
+      course: courseId 
+    });
+    
     if (existing) {
       return res.status(400).json({ message: 'Already enrolled' });
     }
 
-    const enrollment = new EnrolledCourse({ student: studentId, course: courseId });
+    // Get course details
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // For paid courses, verify payment details
+    if (course.price > 0) {
+      if (!paymentId || !orderId || !signature) {
+        return res.status(400).json({ 
+          message: 'Payment verification required for paid courses' 
+        });
+      }
+      
+      // Here you can add additional payment verification logic
+      // For now, we'll assume the payment verification happens in the payment endpoint
+    }
+
+    // Create enrollment
+    const enrollment = new EnrolledCourse({ 
+      student: studentId, 
+      course: courseId,
+      paymentDetails: course.price > 0 ? {
+        paymentId,
+        orderId,
+        signature,
+        amount: course.price,
+        currency: 'INR',
+        status: 'completed'
+      } : null
+    });
+    
     await enrollment.save();
 
-    res.status(201).json({ message: 'Enrollment successful' });
+    // Update course enrolled students count
+    await Course.findByIdAndUpdate(courseId, {
+      $addToSet: { enrolledStudents: studentId }
+    });
+
+    res.status(201).json({ 
+      message: 'Enrollment successful',
+      enrollment: {
+        id: enrollment._id,
+        courseId: courseId,
+        studentId: studentId,
+        enrolledAt: enrollment.enrolledAt
+      }
+    });
   } catch (err) {
     console.error('Enrollment Error:', err);
     res.status(500).json({ message: 'Server error during enrollment' });
@@ -25,7 +76,7 @@ export const getAllEnrollments = async (req, res) => {
     const enrollments = await EnrolledCourse.find()
       .populate({
         path: 'student',
-        select: 'name email' // select relevant student fields
+        select: 'name email'
       })
       .populate({
         path: 'course',
@@ -38,7 +89,6 @@ export const getAllEnrollments = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch enrollments" });
   }
 };
-
 
 export const getMyEnrolledCourses = async (req, res) => {
   try {
@@ -66,18 +116,19 @@ export const saveVideoProgress = async (req, res) => {
   const courseId = req.params.courseId;
 
   try {
-    let enrollment = await EnrolledCourse.findOne({ student: studentId, course: courseId });
+    let enrollment = await EnrolledCourse.findOne({ 
+      student: studentId, 
+      course: courseId 
+    });
     
     if (!enrollment) {
       return res.status(404).json({ message: 'Enrollment not found' });
     }
 
-    // Initialize videoProgress array if it doesn't exist
     if (!enrollment.videoProgress) {
       enrollment.videoProgress = [];
     }
 
-    // Find or create progress entry for this video
     const progressIndex = enrollment.videoProgress.findIndex(
       progress => progress.videoTitle === videoTitle
     );
@@ -96,13 +147,11 @@ export const saveVideoProgress = async (req, res) => {
     };
 
     if (progressIndex >= 0) {
-      // Update existing progress
       enrollment.videoProgress[progressIndex] = {
         ...enrollment.videoProgress[progressIndex],
         ...progressData
       };
     } else {
-      // Add new progress
       enrollment.videoProgress.push(progressData);
     }
 

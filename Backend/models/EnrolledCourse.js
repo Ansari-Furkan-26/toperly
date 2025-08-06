@@ -7,6 +7,17 @@ const enrolledCourseSchema = new mongoose.Schema({
   completedLessons: [String],
   certificateIssued: { type: Boolean, default: false },
   enrolledAt: { type: Date, default: Date.now },
+  
+  // Payment details for paid courses
+  paymentDetails: {
+    paymentId: String,
+    orderId: String,
+    signature: String,
+    amount: Number,
+    currency: String,
+    status: { type: String, enum: ['pending', 'completed', 'failed'], default: 'completed' }
+  },
+  
   videoProgress: [{
     videoTitle: { type: String, required: true },
     currentTime: { type: Number, default: 0 }, 
@@ -22,6 +33,7 @@ const enrolledCourseSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
 
 enrolledCourseSchema.index({ student: 1, course: 1 }, { unique: true });
 

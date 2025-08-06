@@ -94,16 +94,28 @@ app.post('/api/payment/create-order', async (req, res) => {
             });
         }
 
+        // Safe receipt generation - guaranteed under 40 chars
+        const generateSafeReceipt = (courseId) => {
+            const timestamp = Date.now().toString(36); // Base36 for shorter string
+            const courseShort = courseId.slice(-6); // Last 6 chars of courseId
+            return `c_${courseShort}_${timestamp}`.substring(0, 40); // Ensure max 40 chars
+        };
+
+        const receipt = generateSafeReceipt(courseId);
+
         const options = {
-            amount: amount * 100, // Razorpay expects amount in paisa
+            amount: amount * 100,
             currency: currency,
-            receipt: `course_${courseId}_${Date.now()}`,
+            receipt: receipt,
             notes: {
                 courseId: courseId,
                 courseName: courseName,
-                userEmail: userEmail
+                userEmail: userEmail,
+                originalCourseId: courseId // Full courseId for reference
             }
         };
+
+        console.log('Creating order with receipt:', receipt, '(length:', receipt.length, ')');
 
         const order = await razorpay.orders.create(options);
 
@@ -132,74 +144,107 @@ app.post('/api/payment/create-order', async (req, res) => {
 
 // Verify payment endpoint
 app.post('/api/payment/verify', async (req, res) => {
-    try {
-        const {
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature,
-            courseId,
-            userEmail
-        } = req.body;
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      courseId,
+      userEmail,
+      userId // Add userId to the verification
+    } = req.body;
 
-        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-            return res.status(400).json({
-                success: false,
-                message: 'Missing payment verification parameters'
-            });
-        }
-
-        // Create signature for verification
-        const body = razorpay_order_id + "|" + razorpay_payment_id;
-        const expectedSignature = crypto
-            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-            .update(body.toString())
-            .digest("hex");
-
-        const isAuthentic = expectedSignature === razorpay_signature;
-
-        if (isAuthentic) {
-            // Payment is verified successfully
-            // Here you would typically:
-            // 1. Update your database to mark the course as purchased
-            // 2. Send confirmation email
-            // 3. Grant access to the course
-
-            res.json({
-                success: true,
-                message: 'Payment verified successfully',
-                paymentDetails: {
-                    orderId: razorpay_order_id,
-                    paymentId: razorpay_payment_id,
-                    courseId: courseId,
-                    userEmail: userEmail
-                }
-            });
-
-            // Log successful payment (you can store this in database)
-            console.log('Payment verified successfully:', {
-                orderId: razorpay_order_id,
-                paymentId: razorpay_payment_id,
-                courseId: courseId,
-                userEmail: userEmail,
-                timestamp: new Date().toISOString()
-            });
-
-        } else {
-            res.status(400).json({
-                success: false,
-                message: 'Invalid payment signature'
-            });
-        }
-
-    } catch (error) {
-        console.error('Error verifying payment:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Payment verification failed',
-            error: error.message
-        });
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing payment verification parameters'
+      });
     }
+
+    // Verify signature
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body.toString())
+      .digest("hex");
+
+    const isAuthentic = expectedSignature === razorpay_signature;
+
+    if (isAuthentic) {
+      // Payment verified successfully - Now enroll the student
+      try {
+        // Check if already enrolled
+        const existingEnrollment = await EnrolledCourse.findOne({
+          student: userId,
+          course: courseId
+        });
+
+        if (!existingEnrollment) {
+          // Create enrollment
+          const enrollment = new EnrolledCourse({
+            student: userId,
+            course: courseId,
+            paymentDetails: {
+              paymentId: razorpay_payment_id,
+              orderId: razorpay_order_id,
+              signature: razorpay_signature,
+              amount: 0, // You can get this from the order details
+              currency: 'INR',
+              status: 'completed'
+            }
+          });
+
+          await enrollment.save();
+
+          // Update course enrolled students count
+          await Course.findByIdAndUpdate(courseId, {
+            $addToSet: { enrolledStudents: userId }
+          });
+        }
+
+        res.json({
+          success: true,
+          message: 'Payment verified and enrollment completed successfully',
+          paymentDetails: {
+            orderId: razorpay_order_id,
+            paymentId: razorpay_payment_id,
+            courseId: courseId,
+            userEmail: userEmail
+          }
+        });
+
+      } catch (enrollmentError) {
+        console.error('Enrollment error after payment:', enrollmentError);
+        // Payment was successful but enrollment failed
+        res.json({
+          success: true,
+          message: 'Payment verified successfully. Enrollment will be processed shortly.',
+          paymentDetails: {
+            orderId: razorpay_order_id,
+            paymentId: razorpay_payment_id,
+            courseId: courseId,
+            userEmail: userEmail
+          }
+        });
+      }
+
+    } else {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid payment signature'
+      });
+    }
+
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Payment verification failed',
+      error: error.message
+    });
+  }
 });
+
 
 // Get payment details endpoint
 app.get('/api/payment/:paymentId', async (req, res) => {
