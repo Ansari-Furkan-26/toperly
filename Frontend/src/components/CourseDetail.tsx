@@ -8,12 +8,16 @@ import CourseContentList from "./student/CourseContentList";
 import Material from "./student/Material";
 import Toast from "./student/Toast";
 import CourseReviewSection from "./student/CourseReviewSection";
+import PaymentForm from "./PaymentForm";
+import PaymentModal from "./PaymentModal";
+import { usePayment } from "../hooks/usePayment";
 
-const API_BASE = "https://toperly.onrender.com/api";
+const API_BASE = "http://localhost:5000/api";
 
 const CourseDetail = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const { loading: paymentLoading, error: paymentError, paymentSuccess, initiatePayment, resetPaymentState } = usePayment();
 
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,6 +29,10 @@ const CourseDetail = () => {
   const [instructor, setInstructor] = useState({});
   const [certificateUrl, setCertificateUrl] = useState(null);
   const [certificateLoading, setCertificateLoading] = useState(false);
+  
+  // Payment states
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -40,6 +48,21 @@ const CourseDetail = () => {
       checkEnrollment();
     }
   }, [user, course]);
+
+  // Handle payment success/error
+  useEffect(() => {
+    if (paymentSuccess || paymentError) {
+      setShowPaymentModal(true);
+      setShowPaymentForm(false);
+      
+      if (paymentSuccess) {
+        // Refresh enrollment status after successful payment
+        setTimeout(() => {
+          checkEnrollment();
+        }, 1000);
+      }
+    }
+  }, [paymentSuccess, paymentError]);
 
   const handleDownloadCertificate = async () => {
     if (!user?.id || !isEnrolled)
@@ -101,6 +124,8 @@ const CourseDetail = () => {
   };
 
   const checkEnrollment = async () => {
+    if (!user) return;
+    
     try {
       const res = await fetch(`${API_BASE}/enroll/my-courses`, {
         headers: {
@@ -120,6 +145,16 @@ const CourseDetail = () => {
   const handleEnroll = async () => {
     if (!user) return navigate("/auth");
 
+    // If course is free, enroll directly
+    if (course.price === 0) {
+      return handleFreeEnrollment();
+    }
+
+    // If course is paid, show payment form
+    setShowPaymentForm(true);
+  };
+
+  const handleFreeEnrollment = async () => {
     try {
       setEnrollmentLoading(true);
       const res = await fetch(`${API_BASE}/enroll/${courseId}`, {
@@ -140,6 +175,36 @@ const CourseDetail = () => {
     } finally {
       setEnrollmentLoading(false);
     }
+  };
+
+  const handlePaymentFormSubmit = async (userDetails) => {
+    if (!course) return;
+
+    const courseData = {
+      id: course._id,
+      name: course.title,
+      price: course.price,
+      description: course.description
+    };
+
+    await initiatePayment(courseData, userDetails);
+  };
+
+  const handlePaymentFormCancel = () => {
+    setShowPaymentForm(false);
+    resetPaymentState();
+  };
+
+  const handlePaymentModalClose = () => {
+    setShowPaymentModal(false);
+    resetPaymentState();
+  };
+
+  const handleGoToCourse = () => {
+    setShowPaymentModal(false);
+    resetPaymentState();
+    // Refresh the page to show updated enrollment status
+    window.location.reload();
   };
 
   if (loading) {
@@ -197,7 +262,7 @@ const CourseDetail = () => {
               isEnrolled={isEnrolled}
               course={course}
               onEnroll={handleEnroll}
-              enrollmentLoading={enrollmentLoading}
+              enrollmentLoading={enrollmentLoading || paymentLoading}
               showToast={showToast}
             />
 
@@ -276,7 +341,7 @@ const CourseDetail = () => {
               course={course}
               isEnrolled={isEnrolled}
               onEnroll={handleEnroll}
-              enrollmentLoading={enrollmentLoading}
+              enrollmentLoading={enrollmentLoading || paymentLoading}
             />
 
             <CourseContentList
@@ -286,6 +351,7 @@ const CourseDetail = () => {
               isEnrolled={isEnrolled}
               showToast={showToast}
             />
+            
             {isEnrolled && (
               <div className="mt-6">
                 <button
@@ -334,6 +400,45 @@ const CourseDetail = () => {
           />
         </div>
       </div>
+
+      {/* Payment Form Modal */}
+      {showPaymentForm && course && (
+        <PaymentForm
+          course={{
+            id: course._id,
+            name: course.title,
+            price: course.price,
+            description: course.description
+          }}
+          onSubmit={handlePaymentFormSubmit}
+          onCancel={handlePaymentFormCancel}
+          loading={paymentLoading}
+        />
+      )}
+
+      {/* Payment Success/Error Modal */}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        type={paymentSuccess ? 'success' : 'error'}
+        title={paymentSuccess ? 'Payment Successful!' : 'Payment Failed'}
+        message={
+          paymentSuccess 
+            ? `Congratulations! You have successfully purchased ${course?.title}. You now have lifetime access to the course.`
+            : paymentError || 'Something went wrong with your payment. Please try again.'
+        }
+        onClose={handlePaymentModalClose}
+        actionButton={
+          paymentSuccess 
+            ? {
+                text: 'Start Learning',
+                onClick: handleGoToCourse
+              }
+            : {
+                text: 'Try Again',
+                onClick: handlePaymentModalClose
+              }
+        }
+      />
     </div>
   );
 };
